@@ -1,8 +1,7 @@
 #lang racketscript/base
-(require "rs-universe.rkt")
+(require "universe-server.rkt")
 
 (define (tick w) 
-    (#js*.console.log (js-string (string-append "Hello world" (number->string w))))
-    (+ w 1))
+    w)
 
-(big-bang* 0 #:on-tick tick)
+(big-bang 0 [on-tick tick])
