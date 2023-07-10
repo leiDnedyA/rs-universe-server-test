@@ -14,7 +14,6 @@
 
          u-on-tick
          universe
-         universe-test ;; Remove me when done implementing
 
          key=?
          mouse=?)
@@ -421,16 +420,6 @@
 ;                      #t)])))
 
 ;; Universe server
-
-(define (universe-test init-state) ;; Test for world client features
-  (define peer (new (Peer ($/str "server"))))
-
-  (#js.peer.on #js"open" 
-    (λ ()
-      (#js*.console.log (js-string "universe test started..."))))
-      
-  )
-
 (define (universe init-server . handlers)
   ($> (make-universe init-server handlers)
       (setup)
