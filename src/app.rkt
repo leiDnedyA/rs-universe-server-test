@@ -1,33 +1,30 @@
 #lang racketscript/base
 (require "universe-server.rkt"
+         "client.rkt"
+         "server.rkt"
          racketscript/htdp/image)
 
-;; Implementation of bouncing ball example from
-;; 2htdp/universe docs
-;; ( https://docs.racket-lang.org/teachpack/2htdpuniverse.html )
-;; (ctrl + F search for "Designing the Ball World")
+(define world-form (#js*.document.querySelector #js"#world-form"))
+(define username-input (#js*.document.querySelector #js"#username-input"))
+(define universe-button (#js*.document.querySelector #js"#universe-button"))
 
-(define SPEED 5)
-(define RADIUS 10)
-(define WORLD0 300)
+(define (remove-setup)
+  (define setup-div (#js*.document.querySelector #js"#setup-div"))
+  (#js.setup-div.remove))
 
-(define WIDTH 600)
-(define HEIGHT 400)
-(define MT (empty-scene WIDTH HEIGHT))
-(define BALL (circle RADIUS 'solid 'blue))
+(define (set-title str)
+  (define page-title (#js*.document.querySelector #js"title"))
+  ($/:= #js.page-title.innerHTML (js-string str)))
 
-(define (move ws)
-  (define is-active (number? ws))
-  (if is-active
-    (if (<= ws 0)
-        'RESTING
-        (- ws SPEED))
-    ws))
+(#js.world-form.addEventListener #js"submit"
+  (lambda (_)
+    (define name #js.username-input.value)
+    (start-world ($/str "test"))
+    (remove-setup)
+    (set-title ($/str name))))
 
-(define (draw ws)
-  (cond
-    [(number? ws) (underlay/xy MT 50 ws BALL)]
-    [(symbol? ws) (underlay/xy MT 50 50 (text "Resting" 24 'blue))]))
-
-(big-bang WORLD0 [on-tick move] [to-draw draw])
-; (universe 0 [u-on-tick tick])
+(#js.universe-button.addEventListener #js"click"
+  (lambda (_)
+    (start-universe)
+    (remove-setup)
+    (set-title "Server")))

@@ -14,6 +14,7 @@
 
          u-on-tick
          universe
+         universe-test ;; Remove me when done implementing
 
          key=?
          mouse=?)
@@ -389,7 +390,46 @@
 (define (mouse=? m1 m2)
   (equal? m1 m2))
 
+; (define (on-receive cb) ;; EXPERIMENTAL
+;   (λ (bb)
+;     (define on-receive-evt ($/obj [type #js"on-receive"]))
+;     ($/obj
+;      [name         #js"on-receuve"]
+;      [register     (λ ()
+;                      #:with-this this
+;                      (#js.bb.queue-event on-receive-evt)
+;                      (define peer (new (Peer ($/str "server"))))
+;                      (if rate
+;                          (set! rate (* 1000 rate))
+;                          (set! rate #js.bb.interval))
+;                          )]
+;      [deregister   (λ ()
+;                      #:with-this this
+;                      (define last-cb #js.this.last-cb)
+;                      (when last-cb
+;                        ;; TODO: This sometimes doesn't work,
+;                        ;; particularly with high fps, so we need to do
+;                        ;; something at event loop itself.
+;                        (#js*.window.clearTimeout last-cb)))]
+;      [invoke       (λ (world _)
+;                      #:with-this this
+;                      (#js.bb.change-world (cb world))
+;                      (:= #js.this.last-cb (#js*.setTimeout
+;                                             (λ ()
+;                                               (#js.bb.queue-event on-tick-evt))
+;                                             rate))
+;                      #t)])))
+
 ;; Universe server
+
+(define (universe-test init-state) ;; Test for world client features
+  (define peer (new (Peer ($/str "server"))))
+
+  (#js.peer.on #js"open" 
+    (λ ()
+      (#js*.console.log (js-string "universe test started..."))))
+      
+  )
 
 (define (universe init-server . handlers)
   ($> (make-universe init-server handlers)
@@ -404,7 +444,6 @@
     #:with-this this
     (:= #js.this.world      init-server)
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
-    (:= #js.this.handlers   (cons (u-to-draw) handlers)) ;; Adds non-changable to-draw handler
     
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-world-change-listeners  ($/array))
@@ -541,12 +580,12 @@
 
      (:= #js.this.-idle #t))])
 
-;; Event handling functions
-;; TODO: Rename big bang event handler functions to something like bb-<name>
-;;       and keep univ handlers named u-<name>, then write a macro to rename  
-;;       them at compile time without the user having to deal with them.
-;;       e.g (big-bang 0 (on-tick tick)) => (big-bang* 0 (bb-on-tick tick))
-;;           (universe 0 (on-tick tick)) => (universe* 0 (u-on-tick tick))
+; ;; Event handling functions
+; ;; TODO: Rename big bang event handler functions to something like bb-<name>
+; ;;       and keep univ handlers named u-<name>, then write a macro to rename  
+; ;;       them at compile time without the user having to deal with them.
+; ;;       e.g (big-bang 0 (on-tick tick)) => (big-bang* 0 (bb-on-tick tick))
+; ;;           (universe 0 (on-tick tick)) => (universe* 0 (u-on-tick tick))
 
 (define (u-on-tick cb rate)
   (λ (u)
@@ -575,33 +614,3 @@
                                               (#js.u.queue-event on-tick-evt))
                                             rate))
                      #t)])))
-
-(define (u-to-draw)
-  (λ (u)
-    (define on-tick-evt ($/obj [type #js"to-draw"]))
-    ; (define cb (λ (u*) (void)))
-    (define cb (λ (u*) u*)) ;; EDIT ME
-    ($/obj
-     [name        #js"to-draw"]
-     [register    (λ () (void))]
-     [deregister  (λ () (void))]
-     [callback    cb]
-     [invoke      (λ (world evt)
-                    (define textbox #js.u.-textbox)
-                    (define new-text (cb #js.u.world))
-                    (define curr-text (js-string->string #js.textbox.innerHTML))
-
-                    (define res-text (string-append curr-text new-text))
-
-                    ;; TODO: Make this work like the server textbox GUI
-
-                    ; (define ctx      #js.bb.-context)
-                    ; (define img      (cb #js.u.world))
-                    ; (define height   #js.img.height)
-                    ; (define width    #js.img.width)
-
-                    ; (#js.ctx.clearRect 0 0 width height)
-                    ; (#js.img.render ctx (half width) (half height))
-
-
-                    #f)])))
