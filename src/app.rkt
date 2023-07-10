@@ -4,6 +4,14 @@
          "server.rkt"
          racketscript/htdp/image)
 
+; TODO:
+
+; - tweak implementation of client to be acurate ot the API
+; - implement universe/server based on API as well
+; - write macros to convert handler names passed ot universe function 
+;   to universe-specific ones
+;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
+
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
 (define universe-button (#js*.document.querySelector #js"#universe-button"))
