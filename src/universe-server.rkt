@@ -8,11 +8,11 @@
          on-tick
          on-key
          on-release
+         on-receive ;; Experimental
          to-draw
          stop-when
          big-bang
 
-         u-on-tick
          universe
 
          key=?
@@ -389,217 +389,51 @@
 (define (mouse=? m1 m2)
   (equal? m1 m2))
 
-; (define (on-receive cb) ;; EXPERIMENTAL
-;   (λ (bb)
-;     (define on-receive-evt ($/obj [type #js"on-receive"]))
-;     ($/obj
-;      [name         #js"on-receuve"]
-;      [register     (λ ()
-;                      #:with-this this
-;                      (#js.bb.queue-event on-receive-evt)
-;                      (define peer (new (Peer ($/str "server"))))
-;                      (if rate
-;                          (set! rate (* 1000 rate))
-;                          (set! rate #js.bb.interval))
-;                          )]
-;      [deregister   (λ ()
-;                      #:with-this this
-;                      (define last-cb #js.this.last-cb)
-;                      (when last-cb
-;                        ;; TODO: This sometimes doesn't work,
-;                        ;; particularly with high fps, so we need to do
-;                        ;; something at event loop itself.
-;                        (#js*.window.clearTimeout last-cb)))]
-;      [invoke       (λ (world _)
-;                      #:with-this this
-;                      (#js.bb.change-world (cb world))
-;                      (:= #js.this.last-cb (#js*.setTimeout
-;                                             (λ ()
-;                                               (#js.bb.queue-event on-tick-evt))
-;                                             rate))
-;                      #t)])))
-
-;; Universe server
-(define (universe init-server . handlers)
-  ($> (make-universe init-server handlers)
-      (setup)
-      (start)))
-
-(define (make-universe init-server handlers)
-  (new (Universe init-server handlers)))
-
-(define-proto Universe
-  (λ (init-server handlers)
-    #:with-this this
-    (:= #js.this.world      init-server)
-    (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
-    
-    (:= #js.this.-active-handlers         ($/obj))
-    (:= #js.this.-world-change-listeners  ($/array))
-
-    (:= #js.this.-idle       #t)
-    (:= #js.this.-stopped    #t)
-    (:= #js.this.-events     ($/array)))
-  [setup
-   (λ ()
-     #:with-this this
-     ;; Create textbox DOM element and add to screen
-     (define textbox  (#js.document.createElement #js"div"))
-
-     ;; Create a Peer instance
-     (define peer (new (Peer ($/str "server"))))
-
-     (#js.textbox.setAttribute #js"width" 600)
-     (#js.textbox.setAttribute #js"height" 400)
-     
-     (:= #js.this.-textbox   textbox)
-     (:= #js.this.-peer      peer)
-
-     (#js.document.body.appendChild textbox)
-     (#js.textbox.focus)
-
-     (#js.this.register-handlers)
-
-     ;; We are reassigning using change-world so that change world
-     ;; callbacks gets invoked at start of big-bang
-     (#js.this.change-world #js.this.world)
-
-     this)]
-  [register-handlers
-   (λ ()
-     #:with-this this
-     (define active-handlers #js.this.-active-handlers)
-     (let loop ([handlers #js.this.handlers])
-       (when (pair? handlers)
-         (define h ((car handlers) this))
-         (#js.h.register)
-         (:= ($ active-handlers #js.h.name) h)
-         (loop (cdr handlers)))))]
-  [deregister-handlers
-   (λ ()
-     #:with-this this
-     (define active-handlers #js.this.-active-handlers)
-     ($> (#js*.Object.keys active-handlers)
-         (forEach
-          (λ (key)
-            (define h ($ active-handlers key))
-            (#js.h.deregister)
-            (:= ($ #js.active-handlers #js.h.name) *undefined*)))))]
-  [deregister-handlers
-   (λ ()
-     #:with-this this
-     (define active-handlers #js.this.-active-handlers)
-     ($> (#js*.Object.keys active-handlers)
-         (forEach
-          (λ (key)
-            (define h ($ active-handlers key))
-            (#js.h.deregister)
-            (:= ($ #js.active-handlers #js.h.name) *undefined*)))))]
-  [start
-   (λ ()
-     #:with-this this
-     (:= #js.this.-stopped #f)
-     ; always draw first, in case no on-tick handler provided
-     (#js.this.queue-event ($/obj [type #js"to-draw"]))
-     (#js.this.process-events))]
-  [stop
-   (λ ()
-     #:with-this this
-     (#js.this.clear-event-queue)
-     (set-object! this
-                  [-stopped #t]
-                  [-idle    #t])
-     (#js.this.deregister-handlers)
-     (set-object! #js.this
-                  [-active-handlers ($/obj)]
-                  [handlers '()]))]
-  [clear-event-queue
-   (λ ()
-     #:with-this this
-     (#js.this.-events.splice 0 #js.this.-events.length))]
-  [queue-event
-   (λ (e)
-     #:with-this this
-     (#js.this.-events.push e)
-     (when #js.this.-idle
-       (schedule-animation-frame #js.this 'process_events)))]
-  [change-world
-   (λ (new-world)
-     #:with-this this
-     (define listeners #js.this.-world-change-listeners)
-     (let loop ([i 0])
-       (when (< i #js.listeners.length)
-         (define listener ($ #js.listeners i))
-         (listener new-world)
-         (loop (add1 i))))
-     (:= #js.this.world new-world))]
-  [add-world-change-listener
-   (λ (cb)
-     #:with-this this
-     (#js.this.-world-change-listeners.push cb))]
-  [remove-world-change-listener
-   (λ (cb)
-     #:with-this this
-     (define index (#js.this.-world-change-listeners.indexOf cb))
-     (#js.this.-world-change-listeners.splice index 1))]
-  [process-events
-   (λ ()
-     #:with-this this
-     (define events #js.this.-events)
-
-     (:= #js.this.-idle #f)
-
-     (let loop ([world-changed? #f])
-       (cond
-         [(> #js.events.length 0)
-          (define evt         (#js.events.shift))
-          (define handler     ($ #js.this.-active-handlers #js.evt.type))
-          (define changed?
-            (cond
-              ; raw evt must be checked 1st; bc handler will be undefined
-              [(equal? #js.evt.type #js"raw")
-               (#js.evt.invoke #js.this.world evt)]
-              [handler (#js.handler.invoke #js.this.world evt)]
-              [else
-               (#js.console.warn "ignoring unknown/unregistered event type: " evt)]))
-          (loop (or world-changed? changed?))]
-         [(and world-changed? (not #js.this.-stopped))
-          (#js.this.queue-event ($/obj [type #js"to-draw"]))
-          (loop #f)]))
-
-     (:= #js.this.-idle #t))])
-
-; ;; Event handling functions
-; ;; TODO: Rename big bang event handler functions to something like bb-<name>
-; ;;       and keep univ handlers named u-<name>, then write a macro to rename  
-; ;;       them at compile time without the user having to deal with them.
-; ;;       e.g (big-bang 0 (on-tick tick)) => (big-bang* 0 (bb-on-tick tick))
-; ;;           (universe 0 (on-tick tick)) => (universe* 0 (u-on-tick tick))
-
-(define (u-on-tick cb rate)
-  (λ (u)
-    (define on-tick-evt ($/obj [type #js"on-tick"]))
+(define (on-receive cb) ;; EXPERIMENTAL
+  (λ (bb)
+    (define on-receive-evt ($/obj [type #js"on-receive"]))
     ($/obj
-     [name         #js"on-tick"]
+     [name         #js"on-receive"]
      [register     (λ ()
                      #:with-this this
-                     (#js.u.queue-event on-tick-evt)
-                     (if rate
-                         (set! rate (* 1000 rate))
-                         (set! rate #js.u.interval)))]
+                     (#js.bb.queue-event on-receive-evt)
+                     
+                     (define peer (new (Peer)))
+                     (:= #js.bb.-peer peer)
+
+                     (:= #js.this.conn-open-listener
+                         (λ () (#js*.console.log #js"connection open!") 0))
+
+                     (:= #js.this.conn-data-listener
+                         (λ (data)
+                           (#js.bb.queue-event ($/obj [type (#js.on-receive-evt.type)]
+                                                      [data data]))))    
+                     
+                     (:= #js.this.peer-open-listener
+                         (λ (conn)
+                           (:= #js.bb.-conn conn)
+                           (#js.conn.addEventListener #js"open" #js.this.conn-open-listener)
+                           (#js.conn.addEventListener #js"data" #js.this.conn-data-listener)))
+                     
+                     (#js.peer.addEventListener #js"open" #js.this.peer-open-listener)
+                     
+                     0)]
      [deregister   (λ ()
                      #:with-this this
-                     (define last-cb #js.this.last-cb)
-                     (when last-cb
-                       ;; TODO: This sometimes doesn't work,
-                       ;; particularly with high fps, so we need to do
-                       ;; something at event loop itself.
-                       (#js*.window.clearTimeout last-cb)))]
+                     0
+                    ;  (define last-cb #js.this.last-cb)
+                    ;  (when last-cb
+                    ;    ;; TODO: This sometimes doesn't work,
+                    ;    ;; particularly with high fps, so we need to do
+                    ;    ;; something at event loop itself.
+                    ;    (#js*.window.clearTimeout last-cb))
+                       )]
      [invoke       (λ (world _)
                      #:with-this this
-                     (#js.u.change-world (cb world))
-                     (:= #js.this.last-cb (#js*.setTimeout
-                                            (λ ()
-                                              (#js.u.queue-event on-tick-evt))
-                                            rate))
-                     #t)])))
+                     (#js.bb.change-world (cb world))
+                     #t
+                     )])))
+
+;; Universe server
+(define (universe)
+  0)

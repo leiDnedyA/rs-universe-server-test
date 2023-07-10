@@ -31,5 +31,9 @@
     [(number? ws) (underlay/xy MT 50 ws BALL)]
     [(symbol? ws) (underlay/xy MT 50 50 (text "Resting" 24 'blue))]))
 
+(define (receive ws data)
+  (#js*.console.log data)
+  ws)
+
 (define (start-world name)
-    (big-bang WORLD0 [on-tick move] [to-draw draw]))
+    (big-bang WORLD0 [on-tick move] [to-draw draw] [on-receive receive]))
