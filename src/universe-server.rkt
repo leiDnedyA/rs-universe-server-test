@@ -399,6 +399,7 @@
                      (#js.bb.queue-event on-receive-evt)
                      
                      (define peer (new (Peer)))
+                     (#js*.console.log peer)
                      (:= #js.bb.-peer peer)
 
                      (:= #js.this.conn-open-listener
@@ -410,12 +411,13 @@
                                                       [data data]))))    
                      
                      (:= #js.this.peer-open-listener
-                         (λ (conn)
+                         (λ ()
+                           (define conn (#js.peer.connect #js"server"))
                            (:= #js.bb.-conn conn)
-                           (#js.conn.addEventListener #js"open" #js.this.conn-open-listener)
-                           (#js.conn.addEventListener #js"data" #js.this.conn-data-listener)))
-                     
-                     (#js.peer.addEventListener #js"open" #js.this.peer-open-listener)
+                           (#js.conn.on #js"open" #js.this.conn-open-listener)
+                           (#js.conn.on #js"data" #js.this.conn-data-listener)))
+
+                     (#js.peer.on #js"open" #js.this.peer-open-listener)
                      
                      0)]
      [deregister   (λ ()

@@ -17,14 +17,16 @@
   ($/:= #js.page-title.innerHTML (js-string str)))
 
 (#js.world-form.addEventListener #js"submit"
-  (lambda (_)
+  (lambda (e)
     (define name #js.username-input.value)
     (start-world ($/str "test"))
     (remove-setup)
     (set-title ($/str name))))
 
 (#js.universe-button.addEventListener #js"click"
-  (lambda (_)
+  (lambda ()
     (start-universe)
     (remove-setup)
     (set-title "Server")))
+
+; (start-world #js"test")
