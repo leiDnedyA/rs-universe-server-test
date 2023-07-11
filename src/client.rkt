@@ -34,6 +34,7 @@
 ;; The only message that the server send is the your-turn one,
 ;; so this will always return HEIGHT as the next world state
 (define (receive ws msg)
+  (#js*.console.log msg)
   (if ($/typeof msg "string")
       HEIGHT
       ws))

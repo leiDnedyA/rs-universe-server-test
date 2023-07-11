@@ -26,6 +26,12 @@
   (#js.iworld0.send #js"it-is-your-turn")
   us*)
 
+(define (switch us iw msg)
+  (define us* (append (rest us) (list (first us))))
+  (define us*-first (first us*))
+  (#js.us*-first.send #js"it-is-your-turn")
+  us*)
+
 (define (universe-test init-state) ;; Test for world client features
   (define peer (new (Peer ($/str "server"))))
 
@@ -33,7 +39,9 @@
     (#js.conn.on #js"open"
       (lambda (_)
         (#js*.console.log #js"user joined!")
-        (set! u-state (add-world u-state conn)))))
+        (set! u-state (add-world u-state conn))))
+    (#js.conn.on #js"data"
+      (lambda (data) (set! u-state (switch u-state conn data)))))
 
   (#js.peer.on #js"open"
     (λ ()

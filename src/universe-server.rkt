@@ -50,6 +50,7 @@
 
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-world-change-listeners  ($/array))
+    (:= #js.this.-package-listeners       ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -139,8 +140,10 @@
      
      ;; WIP: handle packages being passed as new-world
      (define new-world handler-result)
-     (if (package? new-world)
-         (set! new-world (package-world new-world))
+     (if (package? handler-result)
+         (begin
+           (set! new-world (package-world handler-result))
+           (#js.this.handle-package handler-result))
          (void))
      
 
@@ -160,6 +163,25 @@
      #:with-this this
      (define index (#js.this.-world-change-listeners.indexOf cb))
      (#js.this.-world-change-listeners.splice index 1))]
+  [handle-package
+   (λ (pkg)
+     #:with-this this
+     (define message (package-message pkg))
+     (define listeners #js.this.-package-listeners)
+     (let loop ([i 0])
+       (when (< i #js.listeners.length)
+         (define listener ($ #js.listeners i))
+         (listener message)
+         (loop (add1 i)))))]
+  [add-package-listener
+   (λ (cb)
+     #:with-this this
+     (#js.this.-package-listeners.push cb))]
+  [remove-package-listener
+   (λ (cb)
+     #:with-this this
+     (define index (#js.this.-package-listeners.indexOf cb))
+     (#js.this.-package-listeners.splice index 1))]
   [process-events
    (λ ()
      #:with-this this
@@ -436,6 +458,15 @@
 
                      (#js.peer.on #js"open" #js.this.peer-open-listener)
                      
+                     (:= #js.this.package-listener
+                         (λ (message)
+                           #:with-this this
+                           ;; TODO: Implement encoding for racket primitives
+                           (#js.bb.-conn.send message)
+                           0))
+
+                     (#js.bb.add-package-listener #js.this.package-listener)
+
                      0)]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
