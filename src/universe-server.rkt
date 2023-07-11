@@ -21,6 +21,13 @@
          key=?
          mouse=?)
 
+; TODO: implement LOCALHOST constant
+;                 (register) clause for big-bang
+;                 (port) clause for big-bang
+;                 (name) clause for big-bang
+; figure out a way to encode racket primitives 
+; to send between peers
+
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
 
@@ -402,7 +409,6 @@
                      (#js.bb.queue-event on-receive-evt)
                      
                      (define peer (new (Peer)))
-                     (#js*.console.log peer)
                      (:= #js.bb.-peer peer)
 
                      (:= #js.this.conn-open-listener
@@ -410,8 +416,9 @@
 
                      (:= #js.this.conn-data-listener
                          (λ (data)
-                           (#js.bb.queue-event ($/obj [type (#js.on-receive-evt.type)]
-                                                      [data data]))))    
+                           (#js*.console.log data)
+                           (#js.bb.queue-event ($/obj [type #js.on-receive-evt.type]
+                                                      [msg data]))))    
                      
                      (:= #js.this.peer-open-listener
                          (λ ()
@@ -433,9 +440,9 @@
                     ;    ;; something at event loop itself.
                     ;    (#js*.window.clearTimeout last-cb))
                        )]
-     [invoke       (λ (world _)
+     [invoke       (λ (world evt)
                      #:with-this this
-                     (#js.bb.change-world (cb world))
+                     (#js.bb.change-world (cb world #js.evt.msg))
                      #t
                      )])))
 

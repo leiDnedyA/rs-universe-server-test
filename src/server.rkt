@@ -1,6 +1,11 @@
+; THIS IMPLEMENTATION IS SCRAPPY AND ONLY MEANT
+; TO TEST THE CLIENT. doesn't use the htdp/universe
+; library yet.
+
 #lang racketscript/base
 (require "universe-server.rkt"
          "jscommon.rkt"
+         racket/list
          racketscript/htdp/image)
 
 (provide start-universe)
@@ -16,7 +21,11 @@
 (define u-state '())
 
 (define (add-world us iw)
-  (append us (list iw)))
+  (define us* (append us (list iw)))
+  (define iworld0 (first us*))
+  ; (#js.iworld0.send #js"it is your turn")
+  (#js.iw.send #js"test")
+  us*)
 
 (define (universe-test init-state) ;; Test for world client features
   (define peer (new (Peer ($/str "server"))))
@@ -27,7 +36,7 @@
         (#js*.console.log #js"user joined!")
         (set! u-state (add-world u-state conn)))))
 
-  (#js.peer.on #js"open" 
+  (#js.peer.on #js"open"
     (λ ()
       (#js*.console.log (js-string "universe test started..."))
       (#js.peer.on #js"connection" handle-world-connection))))
