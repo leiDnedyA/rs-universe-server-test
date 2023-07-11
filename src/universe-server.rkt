@@ -134,8 +134,16 @@
      (when #js.this.-idle
        (schedule-animation-frame #js.this 'process_events)))]
   [change-world
-   (λ (new-world)
+   (λ (handler-result)
      #:with-this this
+     
+     ;; WIP: handle packages being passed as new-world
+     (define new-world handler-result)
+     (if (package? new-world)
+         (set! new-world (package-world new-world))
+         (void))
+     
+
      (define listeners #js.this.-world-change-listeners)
      (let loop ([i 0])
        (when (< i #js.listeners.length)
@@ -429,16 +437,9 @@
                      (#js.peer.on #js"open" #js.this.peer-open-listener)
                      
                      0)]
-     [deregister   (λ ()
+     [deregister   (λ () ;; TODO: implement this
                      #:with-this this
-                     0
-                    ;  (define last-cb #js.this.last-cb)
-                    ;  (when last-cb
-                    ;    ;; TODO: This sometimes doesn't work,
-                    ;    ;; particularly with high fps, so we need to do
-                    ;    ;; something at event loop itself.
-                    ;    (#js*.window.clearTimeout last-cb))
-                       )]
+                     0)]
      [invoke       (λ (world evt)
                      #:with-this this
                      (#js.bb.change-world (cb world #js.evt.msg))

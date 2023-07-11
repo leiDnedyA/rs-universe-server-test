@@ -22,7 +22,7 @@
   (define is-active (number? ws))
   (if is-active
     (if (<= ws 0)
-        'RESTING
+        (make-package 'RESTING #js"done")
         (- ws SPEED))
     ws))
 
