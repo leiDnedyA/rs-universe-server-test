@@ -2,6 +2,7 @@
 
 (require (for-syntax racketscript/base
                      syntax/parse)
+         "universe-primitives.rkt"
          "jscommon.rkt")
 
 (provide on-mouse
@@ -14,6 +15,8 @@
          big-bang
 
          universe
+         package?
+         make-package
 
          key=?
          mouse=?)
