@@ -11,7 +11,7 @@
 
 (define SPEED 5)
 (define RADIUS 10)
-(define WORLD0 300)
+(define WORLD0 'RESTING)
 
 (define WIDTH 600)
 (define HEIGHT 400)
@@ -29,11 +29,14 @@
 (define (draw ws)
   (cond
     [(number? ws) (underlay/xy MT 50 ws BALL)]
-    [(symbol? ws) (underlay/xy MT 50 50 (text "Resting" 24 'blue))]))
+    [else (underlay/xy MT 50 50 (text "Resting" 24 'blue))]))
 
-(define (receive ws data)
-  (#js*.console.log data)
-  ws)
+;; The only message that the server send is the your-turn one,
+;; so this will always return HEIGHT as the next world state
+(define (receive ws msg)
+  (if ($/typeof msg "string")
+      HEIGHT
+      ws))
 
 (define (start-world name)
     (big-bang WORLD0 [on-tick move] [to-draw draw] [on-receive receive]))

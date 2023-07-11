@@ -23,8 +23,7 @@
 (define (add-world us iw)
   (define us* (append us (list iw)))
   (define iworld0 (first us*))
-  ; (#js.iworld0.send #js"it is your turn")
-  (#js.iw.send #js"test")
+  (#js.iworld0.send #js"it-is-your-turn")
   us*)
 
 (define (universe-test init-state) ;; Test for world client features

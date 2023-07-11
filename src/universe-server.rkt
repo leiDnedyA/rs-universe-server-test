@@ -406,7 +406,6 @@
      [name         #js"on-receive"]
      [register     (λ ()
                      #:with-this this
-                     (#js.bb.queue-event on-receive-evt)
                      
                      (define peer (new (Peer)))
                      (:= #js.bb.-peer peer)
@@ -416,9 +415,9 @@
 
                      (:= #js.this.conn-data-listener
                          (λ (data)
-                           (#js*.console.log data)
+                           ;; Figure out a way to encode/decode data to send Racket primitives
                            (#js.bb.queue-event ($/obj [type #js.on-receive-evt.type]
-                                                      [msg data]))))    
+                                                      [msg data]))))
                      
                      (:= #js.this.peer-open-listener
                          (λ ()
