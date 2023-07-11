@@ -6,6 +6,8 @@
 
 ; TODO:
 
+; - implement deregister for big-bang on-receive
+; - implement features to handle client disconnections
 ; - tweak implementation of client to be acurate ot the API
 ; - implement universe/server based on API as well
 ; - write macros to convert handler names passed ot universe function 

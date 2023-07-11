@@ -470,6 +470,8 @@
                      0)]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
+                     
+                     (#js.bb.-conn.close)
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
