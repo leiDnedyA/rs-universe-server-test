@@ -40,4 +40,4 @@
       ws))
 
 (define (start-world name)
-    (big-bang WORLD0 [on-tick move] [to-draw draw] [on-receive receive]))
+    (big-bang WORLD0 [on-tick move] [to-draw draw] [on-receive receive] [register "server"]))

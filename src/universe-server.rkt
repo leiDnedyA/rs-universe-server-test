@@ -10,6 +10,7 @@
          on-key
          on-release
          on-receive ;; Experimental
+         register ;; Experimental
          to-draw
          stop-when
          big-bang
@@ -51,6 +52,10 @@
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-world-change-listeners  ($/array))
     (:= #js.this.-package-listeners       ($/array))
+
+    (:= #js.this.-peer            $/undefined)
+    (:= #js.this.-conn            $/undefined)
+    (:= #js.this.-peer-init-tasks ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -208,7 +213,47 @@
           (#js.this.queue-event ($/obj [type #js"to-draw"]))
           (loop #f)]))
 
-     (:= #js.this.-idle #t))])
+     (:= #js.this.-idle #t))]
+  [init-peer-connection
+   ; Should we let users pick their own IDs? Would that be a security issue?
+   (λ (server-id)
+     #:with-this this
+     (define peer (new (Peer)))
+     (:= #js.this.-peer peer)
+     
+     (#js.peer.on #js"open"
+      (λ ()      
+        (define conn (#js.peer.connect (js-string server-id)))
+        (:= #js.this.-conn conn)
+
+        (define init-tasks #js.this.-peer-init-tasks)
+        
+        (define (on-conn-open)
+          ;; Loop through this.-peer-init-tasks[] and execute all callbacks
+          (let loop ([i 0])
+            (when (< i #js.init-tasks.length)
+             (define task ($ #js.init-tasks i))
+             (task peer conn)
+             (loop (add1 i)))))
+
+        (#js.conn.on #js"open" on-conn-open)))
+
+
+   )]
+  ;; cb = (peer: Peer, conn: DataConnection) => void
+  [add-peer-init-task
+   (λ (cb)
+     #:with-this this
+     ;; If peer and conn already exist, execute callback
+     ;; else, append callback to this.-peer-init-tasks[]
+     (define conn #js.this.-conn)
+     (define peer #js.this.-peer)
+     (define conn-open?
+      (if ($/typeof conn "undefined")
+          #f #js.conn.open))
+     (if conn-open?
+         (cb peer conn)
+         (#js.this.-peer-init-tasks.push cb)))])
 
 (define (to-draw cb)
   (λ (bb)
@@ -437,45 +482,66 @@
      [register     (λ ()
                      #:with-this this
                      
-                     (define peer (new (Peer)))
-                     (:= #js.bb.-peer peer)
+                    ;  (define peer (new (Peer)))
+                    ;  (:= #js.bb.-peer peer)
 
-                     (:= #js.this.conn-open-listener
-                         (λ () (#js*.console.log #js"connection open!") 0))
-
-                     (:= #js.this.conn-data-listener
-                         (λ (data)
-                           ;; Figure out a way to encode/decode data to send Racket primitives
-                           (#js.bb.queue-event ($/obj [type #js.on-receive-evt.type]
-                                                      [msg data]))))
-                     
-                     (:= #js.this.peer-open-listener
-                         (λ ()
-                           (define conn (#js.peer.connect #js"server"))
-                           (:= #js.bb.-conn conn)
-                           (#js.conn.on #js"open" #js.this.conn-open-listener)
-                           (#js.conn.on #js"data" #js.this.conn-data-listener)))
-
-                     (#js.peer.on #js"open" #js.this.peer-open-listener)
-                     
-                     (:= #js.this.package-listener
-                         (λ (message)
-                           #:with-this this
-                           ;; TODO: Implement encoding for racket primitives
-                           (#js.bb.-conn.send message)
-                           0))
-
-                     (#js.bb.add-package-listener #js.this.package-listener)
+                     (#js.bb.add-peer-init-task
+                      (λ (peer conn)
+                        (:= #js.this.conn-open-listener
+                            (λ () (#js*.console.log #js"connection open!") 0))
+   
+                        (:= #js.this.conn-data-listener
+                            (λ (data)
+                              ;; Figure out a way to encode/decode data to send Racket primitives
+                              (#js.bb.queue-event ($/obj [type #js.on-receive-evt.type]
+                                                         [msg data]))))
+                        
+                        (:= #js.this.peer-open-listener
+                            (λ ()
+                              (#js.conn.on #js"open" #js.this.conn-open-listener)
+                              (#js.conn.on #js"data" #js.this.conn-data-listener)))
+   
+                        (#js.peer.on #js"open" #js.this.peer-open-listener)
+                        
+                        (:= #js.this.package-listener
+                            (λ (message)
+                              #:with-this this
+                              ;; TODO: Implement encoding for racket primitives
+                              (#js.conn.send message)
+                              0))
+   
+                        (#js.bb.add-package-listener #js.this.package-listener)))
 
                      0)]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
-                     
-                     (#js.bb.-conn.close)
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
                      (#js.bb.change-world (cb world #js.evt.msg))
+                     #t
+                     )])))
+
+(define (register server-id) ;; Experimental
+  (λ (bb)
+    ($/obj
+     [name         #js"register"]
+     [register     (λ ()
+                     #:with-this this
+                     (#js.bb.init-peer-connection server-id)
+                     0)]
+     [deregister   (λ () ;; TODO: implement this
+                     #:with-this this
+                     (define conn #js.bb.-conn)
+                     (define conn-open?
+                      (if ($/typeof conn "undefined")
+                          #f #js.conn.open))
+                     (if conn-open?
+                      (#js.conn.close)
+                      (void))
+                     0)]
+     [invoke       (λ (world evt)
+                     #:with-this this
                      #t
                      )])))
 
