@@ -6,6 +6,7 @@
 
 ; TODO:
 
+; Figure out a way to configure Peer server to not allow custom IDs
 ; - implement deregister for big-bang on-receive
 ; - implement features to handle client disconnections
 ; - tweak implementation of client to be acurate ot the API

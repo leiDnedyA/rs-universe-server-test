@@ -482,27 +482,16 @@
      [register     (λ ()
                      #:with-this this
                      
-                    ;  (define peer (new (Peer)))
-                    ;  (:= #js.bb.-peer peer)
-
                      (#js.bb.add-peer-init-task
                       (λ (peer conn)
-                        (:= #js.this.conn-open-listener
-                            (λ () (#js*.console.log #js"connection open!") 0))
-   
                         (:= #js.this.conn-data-listener
                             (λ (data)
                               ;; Figure out a way to encode/decode data to send Racket primitives
                               (#js.bb.queue-event ($/obj [type #js.on-receive-evt.type]
                                                          [msg data]))))
                         
-                        (:= #js.this.peer-open-listener
-                            (λ ()
-                              (#js.conn.on #js"open" #js.this.conn-open-listener)
-                              (#js.conn.on #js"data" #js.this.conn-data-listener)))
+                        (#js.conn.on #js"data" #js.this.conn-data-listener)
    
-                        (#js.peer.on #js"open" #js.this.peer-open-listener)
-                        
                         (:= #js.this.package-listener
                             (λ (message)
                               #:with-this this
@@ -515,6 +504,16 @@
                      0)]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
+                     (define peer #js.bb.-peer)
+                     (define destroy-peer?
+                       (if ($/typeof peer "undefined")
+                           #f
+                           (not #js.peer.disconnected)))
+                     (if destroy-peer?
+                         (begin 
+                           (#js.peer.disconnect)
+                           (#js.peer.destroy))
+                         (void))
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
