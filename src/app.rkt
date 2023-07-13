@@ -6,14 +6,14 @@
 
 ; TODO:
 
-; Figure out a way to configure Peer server to not allow custom IDs
-; - implement deregister for big-bang on-receive
+; - Figure out a way to configure Peer server to not allow custom IDs
+; - write a test for on-receive deregister
 ; - implement features to handle client disconnections
-; - tweak implementation of client to be acurate ot the API
-; - implement universe/server based on API as well
-; - write macros to convert handler names passed ot universe function 
+; - implement universe/server
+; - write macros to convert handler names passed to universe function 
 ;   to universe-specific ones
 ;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
+;   do some bug testing
 
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))

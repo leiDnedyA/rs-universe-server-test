@@ -1,5 +1,7 @@
 #lang racketscript/base
 
+(define SERVER-PEER-ID "server") ;; REPLACE WITH BETTER SOLUTION
+
 (require (for-syntax racketscript/base
                      syntax/parse)
          "universe-primitives.rkt"
@@ -514,6 +516,7 @@
                            (#js.peer.disconnect)
                            (#js.peer.destroy))
                          (void))
+                     (#js.bb.remove-package-listener #js.this.package-listener)
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
@@ -545,5 +548,43 @@
                      )])))
 
 ;; Universe server
-(define (universe)
+(define (make-universe init-state handlers)
+  (new (Universe init-state handlers)))
+
+(define (universe init-state . handlers)
+  ($> (make-universe init-state handlers)
+      (setup)
+      (start)))
+
+(define-proto Universe
+  (λ (init-state handlers)
+    #:with-this this
+    (:= #js.this.state      init-state)
+    (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
+    (:= #js.this.handlers   handlers)
+
+    (:= #js.this.-active-handlers         ($/obj))
+    (:= #js.this.-state-change-listeners  ($/array))
+    (:= #js.this.-package-listeners       ($/array))
+
+    (:= #js.this.-peer            $/undefined)
+    (:= #js.this.-conn            $/undefined)
+    (:= #js.this.-peer-init-tasks ($/array))
+
+    (:= #js.this.-idle       #t)
+    (:= #js.this.-stopped    #t)
+    (:= #js.this.-events     ($/array)))
+  [start
+   (λ ()
+     #:with-this this
+     0)]
+  [setup
+   (λ ()
+     #:with-this this
+     (#js.this.register-handlers)
+     (:= #js.this.-peer (new (Peer SERVER-PEER-ID)))
+     )]
+  )
+
+(define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)

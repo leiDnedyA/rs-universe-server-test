@@ -1,6 +1,5 @@
-; THIS IMPLEMENTATION IS SCRAPPY AND ONLY MEANT
-; TO TEST THE CLIENT. doesn't use the htdp/universe
-; library yet.
+; THIS IMPLEMENTATION DOESN'T FOLLOW THE UNIVERSE API
+; AND ONLY MEANT TO TEST THE CLIENT.
 
 #lang racketscript/base
 (require "universe-server.rkt"
