@@ -39,5 +39,18 @@
       HEIGHT
       ws))
 
+;; Stops world when ws == "stop"
+(define (stop? ws) (equal? ws "stop"))
+
+(define (handle-key ws key)
+  (if (equal? key " ")
+      "stop" ws))
+
 (define (start-world name)
-    (big-bang WORLD0 [on-tick move] [to-draw draw] [on-receive receive] [register "server"]))
+    (big-bang WORLD0 
+              [on-tick move]
+              [to-draw draw]
+              [on-receive receive]
+              [register "server"]
+              [on-key handle-key]
+              [stop-when stop?]))

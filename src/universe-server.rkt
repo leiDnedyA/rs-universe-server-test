@@ -538,6 +538,7 @@
                      (define conn-open?
                       (if ($/typeof conn "undefined")
                           #f #js.conn.open))
+                     (#js*.console.log conn-open?)
                      (if conn-open?
                       (#js.conn.close)
                       (void))

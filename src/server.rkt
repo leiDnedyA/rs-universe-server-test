@@ -25,10 +25,18 @@
   (#js.iworld0.send #js"it-is-your-turn")
   us*)
 
+(define (send-turn us)
+  (define (do-send)
+    (define us-first (first us))
+    (#js.us-first.send #js"it-is-your-turn"))
+  (if (> (length us) 0)
+      (do-send)
+      (void))
+  us)
+
 (define (switch us iw msg)
   (define us* (append (rest us) (list (first us))))
-  (define us*-first (first us*))
-  (#js.us*-first.send #js"it-is-your-turn")
+  (send-turn us*)
   us*)
 
 (define (universe-test init-state) ;; Test for world client features
@@ -39,6 +47,15 @@
       (lambda (_)
         (#js*.console.log #js"user joined!")
         (set! u-state (add-world u-state conn))))
+    (#js.conn.on #js"close"
+      (lambda (_)
+        (#js*.console.log u-state)
+        (set! u-state (remove conn u-state))
+        (#js*.console.log #js"conn close")
+        (#js*.console.log u-state)
+        (send-turn u-state)
+        0))
+    ;; Add close handler to disconnect event in actual implementation
     (#js.conn.on #js"data"
       (lambda (data) (set! u-state (switch u-state conn data)))))
 
