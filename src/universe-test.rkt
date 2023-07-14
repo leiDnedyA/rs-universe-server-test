@@ -7,7 +7,7 @@
 
 (define (tick ws)
   (#js*.console.log ws)
-  (add1 ws))
+  (make-bundle (add1 ws) '() '()))
 
 (define (start-universe-test)
-  (universe '() [u-on-tick tick]))
+  (universe 0 [u-on-tick tick]))

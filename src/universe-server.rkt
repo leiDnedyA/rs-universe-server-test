@@ -23,9 +23,11 @@
          package?
          make-package
 
-         (struct-out bundle) ;; update these two once they're
-         (struct-out mail)   ;; re-implemented, not api accurate
-
+         bundle?
+         make-bundle
+         mail?
+         make-mail
+         
          key=?
          mouse=?)
 

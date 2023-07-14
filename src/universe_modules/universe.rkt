@@ -20,8 +20,10 @@
 
          u-on-tick
          
-         (struct-out bundle) ;; Update these two so that only
-         (struct-out mail)   ;; constructors and predicates export
+         bundle?
+         make-bundle
+         mail?
+         make-mail
          )
 
 (define peerjs ($/require "peerjs" *))
@@ -33,11 +35,19 @@
 
 ;; bundle datatype
 ;; https://docs.racket-lang.org/teachpack/2htdpuniverse.html#%28def._%28%28lib._2htdp%2Funiverse..rkt%29._bundle~3f%29%29
-(struct bundle (state mails low-to-remove))
+(struct u-bundle (state mails low-to-remove))
+(define (make-bundle state mails low-to-remove)
+  (u-bundle state mails low-to-remove))
+(define (bundle? bundle)
+  (u-bundle? bundle))
 
 ;; mail datatype
 ;; https://docs.racket-lang.org/teachpack/2htdpuniverse.html#%28def._%28%28lib._2htdp%2Funiverse..rkt%29._mail~3f%29%29
-(struct mail (to content))
+(struct u-mail (to content))
+(define (make-mail to content)
+  (u-mail to content))
+(define (mail? mail)
+  (u-mail? mail))
 
 ;; Universe server
 (define (make-universe init-state handlers)
@@ -62,6 +72,7 @@
     (:= #js.this.-peer            $/undefined)
     (:= #js.this.-conn            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
+    (:= #js.this.-active-conns    ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -140,12 +151,14 @@
  
       (:= #js.this.-idle #t))]
     [change-state
-     (λ (new-state)
+     (λ (handler-result)
        #:with-this this
        
        ;; TODO - implement Bundle datatype and expect that to be
        ;; passed instead of new-state
        
+       (define new-state (u-bundle-state handler-result))
+
        (define listeners #js.this.-state-change-listeners)
        (let loop ([i 0])
          (when (< i #js.listeners.length)
@@ -165,7 +178,6 @@
      [name         #js"on-tick"]
      [register     (λ ()
                      #:with-this this
-                     (#js*.console.log #js"registering u tick")
                      (#js.u.queue-event on-tick-evt)
                      (if rate
                          (set! rate (* 1000 rate))
