@@ -3,7 +3,7 @@
 
 #lang racketscript/base
 (require "universe-server.rkt"
-         "jscommon.rkt"
+         "./universe_modules/jscommon.rkt"
          racket/list
          racketscript/htdp/image)
 

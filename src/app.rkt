@@ -2,18 +2,22 @@
 (require "universe-server.rkt"
          "client.rkt"
          "server.rkt"
+         "universe-test.rkt" ;; Remove when done testing universe implementation
          racketscript/htdp/image)
 
 ; TODO:
 
-; - Figure out a way to configure Peer server to not allow custom IDs
-; - write a test for on-receive deregister
-; - implement features to handle client disconnections
-; - implement universe/server
+; - implement universe/server for bouncing ball
+;   - features to handle client disconnections
+;   - UI interface
+; - Implement datatypes like iWorld, mail, bundle
+; - Work on implementing missing API features (consider doing chat-room example as test)
+; - document any deviations from the htdp/universe API (e.g register to peer id instead of ip)
 ; - write macros to convert handler names passed to universe function 
 ;   to universe-specific ones
 ;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
 ;   do some bug testing
+; - Figure out a way to configure Peer server to not allow custom IDs in client code
 
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
@@ -36,8 +40,7 @@
 
 (#js.universe-button.addEventListener #js"click"
   (lambda ()
-    (start-universe)
+    (start-universe-test)
+    ; (start-universe)
     (remove-setup)
     (set-title "Server")))
-
-; (start-world #js"test")

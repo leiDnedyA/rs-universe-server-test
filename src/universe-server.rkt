@@ -1,11 +1,10 @@
 #lang racketscript/base
 
-(define SERVER-PEER-ID "server") ;; REPLACE WITH BETTER SOLUTION
-
 (require (for-syntax racketscript/base
                      syntax/parse)
-         "universe-primitives.rkt"
-         "jscommon.rkt")
+         "./universe_modules/universe-primitives.rkt"
+         "./universe_modules/jscommon.rkt"
+         "./universe_modules/universe.rkt")
 
 (provide on-mouse
          on-tick
@@ -17,9 +16,15 @@
          stop-when
          big-bang
 
+         u-on-tick
          universe
+
+
          package?
          make-package
+
+         (struct-out bundle) ;; update these two once they're
+         (struct-out mail)   ;; re-implemented, not api accurate
 
          key=?
          mouse=?)
@@ -146,6 +151,7 @@
      #:with-this this
      
      ;; WIP: handle packages being passed as new-world
+     ;; see https://docs.racket-lang.org/teachpack/2htdpuniverse.html#%28part._universe._.Sending_.Messages%29
      (define new-world handler-result)
      (if (package? handler-result)
          (begin
@@ -153,7 +159,6 @@
            (#js.this.handle-package handler-result))
          (void))
      
-
      (define listeners #js.this.-world-change-listeners)
      (let loop ([i 0])
        (when (< i #js.listeners.length)
@@ -547,45 +552,3 @@
                      #:with-this this
                      #t
                      )])))
-
-;; Universe server
-(define (make-universe init-state handlers)
-  (new (Universe init-state handlers)))
-
-(define (universe init-state . handlers)
-  ($> (make-universe init-state handlers)
-      (setup)
-      (start)))
-
-(define-proto Universe
-  (λ (init-state handlers)
-    #:with-this this
-    (:= #js.this.state      init-state)
-    (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
-    (:= #js.this.handlers   handlers)
-
-    (:= #js.this.-active-handlers         ($/obj))
-    (:= #js.this.-state-change-listeners  ($/array))
-    (:= #js.this.-package-listeners       ($/array))
-
-    (:= #js.this.-peer            $/undefined)
-    (:= #js.this.-conn            $/undefined)
-    (:= #js.this.-peer-init-tasks ($/array))
-
-    (:= #js.this.-idle       #t)
-    (:= #js.this.-stopped    #t)
-    (:= #js.this.-events     ($/array)))
-  [start
-   (λ ()
-     #:with-this this
-     0)]
-  [setup
-   (λ ()
-     #:with-this this
-     (#js.this.register-handlers)
-     (:= #js.this.-peer (new (Peer SERVER-PEER-ID)))
-     )]
-  )
-
-(define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
-  0)
