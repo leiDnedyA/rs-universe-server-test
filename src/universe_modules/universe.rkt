@@ -6,6 +6,7 @@
          "jscommon.rkt")
 
 ; TODO:
+; REFACTOR IMPLEMENTATION TO USE iWORLD DATATYPE
 ; implement the following handlers
 ; - on-new
 ; - on-msg
@@ -136,7 +137,7 @@
        ;; TODO - implement Bundle datatype and expect that to be
        ;; passed instead of new-state
        
-       (define new-state (u-bundle-state handler-result))
+       (define new-state (bundle-state handler-result))
 
        (define listeners #js.this.-state-change-listeners)
        (let loop ([i 0])
@@ -201,7 +202,7 @@
                                             rate))
                      #t)])))
 
-(define (u-on-new cb) ;; TODO: refactor once iWorld is implemented
+(define (u-on-new cb)
   (λ (u)
     (define on-new-evt ($/obj [type #js"on-new"]))
     ($/obj
