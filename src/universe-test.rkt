@@ -5,9 +5,9 @@
 
 (provide start-universe-test)
 
-(define (tick ws)
-  (#js*.console.log ws)
-  (make-bundle (add1 ws) '() '()))
+(define (handle-new ws iw)
+  (#js*.console.log iw)
+  (make-bundle ws '() '()))
 
 (define (start-universe-test)
-  (universe 0 [u-on-tick tick]))
+  (universe 0 [u-on-new handle-new]))

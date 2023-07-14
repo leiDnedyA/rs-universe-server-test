@@ -18,6 +18,7 @@
 (provide universe
 
          u-on-tick
+         u-on-new
          
          bundle?
          make-bundle
@@ -53,9 +54,7 @@
     (:= #js.this.-package-listeners       ($/array))
 
     (:= #js.this.-peer            $/undefined)
-    (:= #js.this.-conn            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
-    (:= #js.this.-active-conns    ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -64,7 +63,6 @@
    (λ ()
      #:with-this this
      (#js.this.register-handlers)
-     (:= #js.this.-peer (new (Peer DEFAULT-UNIVERSE-ID)))
      this)]
   [register-handlers
    (λ ()
@@ -89,6 +87,7 @@
   [start
    (λ ()
      #:with-this this
+     (#js.this.init-peer-connection)
      0)]
   [stop
    (λ () 0)]
@@ -118,19 +117,16 @@
           [(> #js.events.length 0)
            (define evt         (#js.events.shift))
            (define handler     ($ #js.this.-active-handlers #js.evt.type))
- 
            (define changed?
              (cond
                ; raw evt must be checked 1st; bc handler will be undefined
                [(equal? #js.evt.type #js"raw")
                 (#js.evt.invoke #js.this.state evt)]
-               [handler (#js.handler.invoke #js.this.state evt)]
+               [(not ($/typeof handler "undefined"))
+                (#js.handler.invoke #js.this.state evt)]
                [else
                 (#js.console.warn "ignoring unknown/unregistered event type: " evt)]))
-           (loop (or state-changed? changed?))]
-          [(and state-changed? (not #js.this.-stopped))
-           (#js.this.queue-event ($/obj [type #js"to-draw"]))
-           (loop #f)]))
+           (loop (or state-changed? changed?))]))
  
       (:= #js.this.-idle #t))]
     [change-state
@@ -149,7 +145,30 @@
            (listener new-state)
            (loop (add1 i))))
        (:= #js.this.state new-state))]
-  )
+    [init-peer-connection
+     (λ (id)
+       #:with-this this
+       (define peer (new (Peer DEFAULT-UNIVERSE-ID)))
+       (:= #js.this.-peer peer)
+       (#js.peer.on #js"open"
+         (λ ()
+           (define init-tasks #js.this.-peer-init-tasks)
+           (let loop ([i 0])
+            (when (< i #js.init-tasks.length)
+             (define task ($ #js.init-tasks i))
+             (task peer)
+             (loop (add1 i)))))))]
+    [add-peer-init-task
+     (λ (cb) ;; cb = (peer: Peer) => void
+       #:with-this this
+       ;; If peer already exists, execute callback
+       ;; else, append callback to this.-peer-init-tasks[]
+       (define peer #js.this.-peer)
+       (define peer-started? (not ($/typeof peer "undefined")))
+       
+       (if peer-started?
+           (cb peer)
+           (#js.this.-peer-init-tasks.push cb)))])
 
 (define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)
@@ -182,17 +201,30 @@
                                             rate))
                      #t)])))
 
-(define (u-on-new cb)
+(define (u-on-new cb) ;; TODO: refactor once iWorld is implemented
   (λ (u)
     (define on-new-evt ($/obj [type #js"on-new"]))
     ($/obj
      [name         #js"on-new"]
      [register     (λ ()
                      #:with-this this
+                     (:= #js.this.-active-conns ($/array))
+                     (define (init-task peer)
+                       (define (handle-connection conn)
+                         ;; TODO: Add disconnect listener to conn
+                         (#js.this.-active-conns.push conn)
+                         (#js.u.queue-event ($/obj [type #js"on-new"]
+                                                   [iWorld conn])))
+                       (#js.peer.on #js"connection" handle-connection))
+                     
+                     (#js.u.add-peer-init-task init-task)
+                     
                      (void))]
-     [deregister   (λ ()
+     [deregister   (λ () ;; TODO: implement this
                      #:with-this this
                      (void))]
-     [invoke       (λ (state _)
+     [invoke       (λ (state evt)
                      #:with-this this
+                     (#js.u.change-state 
+                      (cb state #js.evt.iWorld))
                      #t)])))
