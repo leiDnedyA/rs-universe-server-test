@@ -10,7 +10,9 @@
 ; - implement universe/server for bouncing ball
 ;   - features to handle client disconnections
 ;   - UI interface
-; - Implement datatypes like iWorld, mail, bundle
+; - Implement iWorld datatype
+; - consider reworking implementation of package datatype
+;   to be like the bundle and mail implementations (w/ aliases)
 ; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - document any deviations from the htdp/universe API (e.g register to peer id instead of ip)
 ; - write macros to convert handler names passed to universe function 

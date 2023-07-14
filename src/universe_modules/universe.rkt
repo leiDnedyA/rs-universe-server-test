@@ -9,7 +9,6 @@
 ; implement the following handlers
 ; - on-new
 ; - on-msg
-; - on-tick (might be able to work with bb version out of the box)
 ; - on-disconnect
 ; - state
 ; - to-string
@@ -22,9 +21,9 @@
          
          bundle?
          make-bundle
+
          mail?
-         make-mail
-         )
+         make-mail)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -32,22 +31,6 @@
 (define DEFAULT-UNIVERSE-ID "server") ;; Change this
 
 (define *default-frames-per-second* 70)
-
-;; bundle datatype
-;; https://docs.racket-lang.org/teachpack/2htdpuniverse.html#%28def._%28%28lib._2htdp%2Funiverse..rkt%29._bundle~3f%29%29
-(struct u-bundle (state mails low-to-remove))
-(define (make-bundle state mails low-to-remove)
-  (u-bundle state mails low-to-remove))
-(define (bundle? bundle)
-  (u-bundle? bundle))
-
-;; mail datatype
-;; https://docs.racket-lang.org/teachpack/2htdpuniverse.html#%28def._%28%28lib._2htdp%2Funiverse..rkt%29._mail~3f%29%29
-(struct u-mail (to content))
-(define (make-mail to content)
-  (u-mail to content))
-(define (mail? mail)
-  (u-mail? mail))
 
 ;; Universe server
 (define (make-universe init-state handlers)
@@ -197,4 +180,19 @@
                                             (λ ()
                                               (#js.u.queue-event on-tick-evt))
                                             rate))
+                     #t)])))
+
+(define (u-on-new cb)
+  (λ (u)
+    (define on-new-evt ($/obj [type #js"on-new"]))
+    ($/obj
+     [name         #js"on-new"]
+     [register     (λ ()
+                     #:with-this this
+                     (void))]
+     [deregister   (λ ()
+                     #:with-this this
+                     (void))]
+     [invoke       (λ (state _)
+                     #:with-this this
                      #t)])))

@@ -4,10 +4,19 @@
          racket/list)
 
 (provide sexp?
+         
          make-package
          package?
          package-world
-         package-message)
+         package-message
+         
+         (struct-out u-bundle)
+         make-bundle
+         bundle?
+
+         (struct-out u-mail)
+         make-mail
+         mail?)
 
 (define (sexp? x)
   (cond
@@ -29,3 +38,15 @@
     ;   (check-arg 'make-package (sexp? m) 'sexp "second" m)
       (package w m))
     (values make-package package? package-world package-message)))
+
+(struct u-bundle (state mails low-to-remove))
+(define (make-bundle state mails low-to-remove)
+  (u-bundle state mails low-to-remove))
+(define (bundle? bundle)
+  (u-bundle? bundle))
+
+(struct u-mail (to content))
+(define (make-mail to content)
+  (u-mail to content))
+(define (mail? mail)
+  (u-mail? mail))
