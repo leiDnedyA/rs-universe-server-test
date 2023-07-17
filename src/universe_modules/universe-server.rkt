@@ -19,13 +19,7 @@
 (provide universe
 
          u-on-tick
-         u-on-new
-         
-         bundle?
-         make-bundle
-
-         mail?
-         make-mail)
+         u-on-new)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -139,6 +133,11 @@
        (define low-to-remove (bundle-low-to-remove result-bundle))
 
        ;; Send all mails
+       (for-each (lambda (curr-mail)
+                   (define iworld (mail-to curr-mail))
+                   (define conn (iworld-conn iworld))
+                   (#js.conn.send (mail-content curr-mail)))
+                 mails)
 
        ;; Remove all worlds in low-to-remove
 
@@ -230,6 +229,9 @@
                      (void))]
      [invoke       (λ (state evt)
                      #:with-this this
-                     (#js.u.change-state 
-                      (cb state #js.evt.iWorld))
+                     (define conn (iworld-conn #js.evt.iWorld))
+                     (#js.conn.on #js"open"
+                                  (λ (_)
+                                    (#js.u.change-state 
+                                     (cb state #js.evt.iWorld))))
                      #t)])))

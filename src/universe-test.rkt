@@ -6,8 +6,8 @@
 (provide start-universe-test)
 
 (define (handle-new ws iw)
-  (#js*.console.log (iworld-name iw))
-  (make-bundle ws '() '()))
+  (define m (make-mail iw #js"test"))
+  (make-bundle ws (list m) '()))
 
 (define (start-universe-test)
   (universe 0

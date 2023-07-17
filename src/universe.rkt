@@ -528,6 +528,7 @@
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
+                     (#js*.console.log #js"message received")
                      (#js.bb.change-world (cb world #js.evt.msg))
                      #t
                      )])))
