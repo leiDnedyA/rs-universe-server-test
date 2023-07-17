@@ -47,7 +47,7 @@
 
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-state-change-listeners  ($/array))
-    (:= #js.this.-package-listeners       ($/array))
+    (:= #js.this.-message-listeners       ($/array))
 
     (:= #js.this.-peer            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
@@ -181,7 +181,13 @@
        
        (if peer-started?
            (cb peer)
-           (#js.this.-peer-init-tasks.push cb)))])
+           (#js.this.-peer-init-tasks.push cb)))]
+    [pass-message ;; Passes sender iworld and message to this.-message-listeners
+     (λ (sender-iw data)
+       #:with-this this
+       ;; TODO: Decrypt data once encryption/decryption of racket types solved
+       (#js.this.-message-listeners.forEach
+         (λ (cb) (cb sender-iw data))))])
 
 (define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)
@@ -227,7 +233,9 @@
                          (define iw (make-iworld conn "test"))
                          (#js.u.-active-iworlds.push iw)
                          (#js.u.queue-event ($/obj [type #js"on-new"]
-                                                   [iWorld iw])))
+                                                   [iWorld iw]))
+                         (#js.conn.on #js"data"
+                           (λ (data) (#js.u.pass-message iw data))))
                        (#js.peer.on #js"connection" handle-connection))
                      
                      (#js.u.add-peer-init-task init-task)
@@ -247,4 +255,22 @@
 
 (define (u-on-disconnect cb) 0)
 
-(define (u-on-msg cb) 0)
+(define (u-on-msg cb)
+  (λ (u)
+    (define on-msg-evt ($/obj [type #js"on-msg"]))
+    ($/obj
+     [name         #js"on-msg"]
+     [register     (λ ()
+                     #:with-this this
+                     (define (handle-msg sender data)
+                       (#js.u.queue-event ($/obj [type #js"on-msg"]
+                                                 [iWorld sender]
+                                                 [msg data])))
+                     (#js.u.-message-listeners.push handle-msg)
+                     (void))]
+     [deregister   (λ () ;; TODO: implement this
+                     #:with-this this
+                     (void))]
+     [invoke       (λ (state evt)
+                     (#js.u.change-state (cb state #js.evt.iWorld #js.evt.msg))
+                     #t)])))
