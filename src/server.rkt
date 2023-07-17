@@ -2,7 +2,7 @@
 ; AND ONLY MEANT TO TEST THE CLIENT.
 
 #lang racketscript/base
-(require "universe-server.rkt"
+(require "universe.rkt"
          "./universe_modules/jscommon.rkt"
          racket/list
          racketscript/htdp/image)

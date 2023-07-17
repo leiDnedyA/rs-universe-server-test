@@ -1,5 +1,5 @@
 #lang racketscript/base
-(require "universe-server.rkt"
+(require "universe.rkt"
          racketscript/htdp/image)
 
 (provide start-world)

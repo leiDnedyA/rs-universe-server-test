@@ -4,7 +4,7 @@
                      syntax/parse)
          "./universe_modules/universe-primitives.rkt"
          "./universe_modules/jscommon.rkt"
-         "./universe_modules/universe.rkt")
+         "./universe_modules/universe-server.rkt")
 
 (provide on-mouse
          on-tick
@@ -27,6 +27,10 @@
          make-bundle
          mail?
          make-mail
+
+         iworld-name
+         iworld?
+         iworld=?
 
          key=?
          mouse=?)

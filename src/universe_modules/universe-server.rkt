@@ -131,13 +131,16 @@
  
       (:= #js.this.-idle #t))]
     [change-state
-     (λ (handler-result)
+     (λ (result-bundle)
        #:with-this this
        
-       ;; TODO - implement Bundle datatype and expect that to be
-       ;; passed instead of new-state
-       
-       (define new-state (bundle-state handler-result))
+       (define new-state (bundle-state result-bundle))
+       (define mails (bundle-mails result-bundle))
+       (define low-to-remove (bundle-low-to-remove result-bundle))
+
+       ;; Send all mails
+
+       ;; Remove all worlds in low-to-remove
 
        (define listeners #js.this.-state-change-listeners)
        (let loop ([i 0])
@@ -209,13 +212,14 @@
      [name         #js"on-new"]
      [register     (λ ()
                      #:with-this this
-                     (:= #js.this.-active-conns ($/array))
+                     (:= #js.this.-active-iworlds ($/array))
                      (define (init-task peer)
                        (define (handle-connection conn)
                          ;; TODO: Add disconnect listener to conn
-                         (#js.this.-active-conns.push conn)
+                         (define iw (make-iworld conn "test"))
+                         (#js.this.-active-iworlds.push iw)
                          (#js.u.queue-event ($/obj [type #js"on-new"]
-                                                   [iWorld conn])))
+                                                   [iWorld iw])))
                        (#js.peer.on #js"connection" handle-connection))
                      
                      (#js.u.add-peer-init-task init-task)

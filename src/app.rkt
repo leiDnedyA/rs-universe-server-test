@@ -1,5 +1,5 @@
 #lang racketscript/base
-(require "universe-server.rkt"
+(require "universe.rkt"
          "client.rkt"
          "server.rkt"
          "universe-test.rkt" ;; Remove when done testing universe implementation
