@@ -19,7 +19,8 @@
 (provide universe
 
          u-on-tick
-         u-on-new)
+         u-on-new
+         u-on-msg)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -50,6 +51,7 @@
 
     (:= #js.this.-peer            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
+    (:= #js.this.-active-iworlds ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -140,6 +142,14 @@
                  mails)
 
        ;; Remove all worlds in low-to-remove
+       (for-each (lambda (iw)
+                   (define conn (iworld-conn iw))
+                   (define index (#js.this.-active-iworlds.indexOf iw))
+                   (#js.conn.close)
+                   (if (> index -1)
+                       (#js.this.-active-iworlds.splice index 1)
+                       (void)))
+                  low-to-remove)
 
        (define listeners #js.this.-state-change-listeners)
        (let loop ([i 0])
@@ -211,12 +221,11 @@
      [name         #js"on-new"]
      [register     (λ ()
                      #:with-this this
-                     (:= #js.this.-active-iworlds ($/array))
                      (define (init-task peer)
                        (define (handle-connection conn)
                          ;; TODO: Add disconnect listener to conn
                          (define iw (make-iworld conn "test"))
-                         (#js.this.-active-iworlds.push iw)
+                         (#js.u.-active-iworlds.push iw)
                          (#js.u.queue-event ($/obj [type #js"on-new"]
                                                    [iWorld iw])))
                        (#js.peer.on #js"connection" handle-connection))
@@ -235,3 +244,7 @@
                                     (#js.u.change-state 
                                      (cb state #js.evt.iWorld))))
                      #t)])))
+
+(define (u-on-disconnect cb) 0)
+
+(define (u-on-msg cb) 0)

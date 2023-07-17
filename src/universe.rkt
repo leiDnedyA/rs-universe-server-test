@@ -18,6 +18,7 @@
 
          u-on-tick
          u-on-new
+         u-on-msg
          universe
 
          package?
@@ -248,8 +249,12 @@
              (define task ($ #js.init-tasks i))
              (task peer conn)
              (loop (add1 i)))))
-
-        (#js.conn.on #js"open" on-conn-open))))]
+        (#js.conn.on #js"open" on-conn-open)
+        (#js.conn.on #js"close" (λ (_) (
+          ;; TODO: implement disconnect event
+          #js*.console.log #js"conn closed")
+          ))
+        )))]
   ;; cb = (peer: Peer, conn: DataConnection) => void
   [add-peer-init-task
    (λ (cb)
