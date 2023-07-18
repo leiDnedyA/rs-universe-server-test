@@ -287,7 +287,7 @@
                      (void))]
      [invoke       (λ (state evt)
                      #:with-this this
-                     (cb state #js.evt.iWorld)
+                     (#js.u.change-state (cb state #js.evt.iWorld))
                      (void))])
     ))
 

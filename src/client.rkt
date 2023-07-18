@@ -34,10 +34,9 @@
 ;; The only message that the server send is the your-turn one,
 ;; so this will always return HEIGHT as the next world state
 (define (receive ws msg)
-  (#js*.console.log msg)
-  (if ($/typeof msg "string")
-      HEIGHT
-      ws))
+  (if (number? ws)
+      ws
+      HEIGHT))
 
 ;; Stops world when ws == "stop"
 (define (stop? ws) (equal? ws "stop"))
