@@ -6,9 +6,6 @@
 
 (provide start-universe-test)
 
-(define (tick ws)
-  (make-bundle ws '() '()))
-
 ;; Test for low-to-remove
 ; (define (handle-new ws iw)
 ;   (define m (make-mail iw #js"test"))
@@ -34,8 +31,15 @@
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
+(define (handle-disconnect ws iw)
+  (define ws* ws)
+  (define mails '())
+  (define to-remove '())
+  (#js*.console.log iw)
+  (make-bundle ws* mails to-remove))
+
 (define (start-universe-test)
   (universe '()
-    [u-on-new handle-new]
-    ; [u-on-tick tick]
-    [u-on-msg handle-msg]))
+    [u-on-new        handle-new]
+    [u-on-msg        handle-msg]
+    [u-on-disconnect handle-disconnect]))

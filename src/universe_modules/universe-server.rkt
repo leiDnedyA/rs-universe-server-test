@@ -6,7 +6,7 @@
          "jscommon.rkt")
 
 ; TODO:
-; REFACTOR IMPLEMENTATION TO USE iWORLD DATATYPE
+; implement deregister for on-msg handler
 ; implement the following handlers
 ; - on-new
 ; - on-msg
@@ -20,7 +20,8 @@
 
          u-on-tick
          u-on-new
-         u-on-msg)
+         u-on-msg
+         u-on-disconnect)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -52,6 +53,7 @@
     (:= #js.this.-peer            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
     (:= #js.this.-active-iworlds ($/array))
+    (:= #js.this.-disconnect-tasks ($/array))
 
     (:= #js.this.-idle       #t)
     (:= #js.this.-stopped    #t)
@@ -187,7 +189,19 @@
        #:with-this this
        ;; TODO: Decrypt data once encryption/decryption of racket types solved
        (#js.this.-message-listeners.forEach
-         (λ (cb) (cb sender-iw data))))])
+         (λ (cb) (cb sender-iw data))))]
+    [handle-disconnect
+     (λ (iw)
+       #:with-this this
+       ;; Run all disconnect tasks, passing in the iworld of the connection being closed
+       (define tasks #js.this.-disconnect-tasks)
+       (let loop ([i 0])
+            (when (< i #js.tasks.length)
+             (define task ($ tasks i))
+             (task iw)
+             (loop (add1 i))))
+       )]
+       )
 
 (define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)
@@ -234,6 +248,9 @@
                          (#js.u.-active-iworlds.push iw)
                          (#js.u.queue-event ($/obj [type #js"on-new"]
                                                    [iWorld iw]))
+                         (#js.conn.on #js"close"
+                           (λ ()
+                             (#js.u.handle-disconnect iw)))
                          (#js.conn.on #js"data"
                            (λ (data) (#js.u.pass-message iw data))))
                        (#js.peer.on #js"connection" handle-connection))
@@ -253,7 +270,26 @@
                                      (cb state #js.evt.iWorld))))
                      #t)])))
 
-(define (u-on-disconnect cb) 0)
+(define (u-on-disconnect cb)
+  (λ (u)
+    (define on-disconnect-evt ($/obj [type #js"on-disconnect"]))
+    ($/obj
+     [name         #js"on-disconnect"]
+     [register     (λ ()
+                     #:with-this this
+                     (#js.u.-disconnect-tasks.push
+                       (λ (iworld)
+                         (#js.u.queue-event ($/obj [type #js"on-disconnect"]
+                                                   [iWorld iworld]))))
+                     (void))]
+     [deregister   (λ ()
+                     #:with-this this
+                     (void))]
+     [invoke       (λ (state evt)
+                     #:with-this this
+                     (cb state #js.evt.iWorld)
+                     (void))])
+    ))
 
 (define (u-on-msg cb)
   (λ (u)

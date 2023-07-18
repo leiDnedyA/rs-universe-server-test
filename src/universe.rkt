@@ -19,6 +19,7 @@
          u-on-tick
          u-on-new
          u-on-msg
+         u-on-disconnect
          universe
 
          package?
@@ -36,12 +37,10 @@
          key=?
          mouse=?)
 
-; TODO: implement LOCALHOST constant
-;                 (register) clause for big-bang
-;                 (port) clause for big-bang
-;                 (name) clause for big-bang
-; figure out a way to encode racket primitives 
-; to send between peers
+; TODO: 
+; (port) clause for big-bang
+; (name) clause for big-bang
+; figure out a way to encode racket primitives to send between peers
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -248,7 +247,16 @@
             (when (< i #js.init-tasks.length)
              (define task ($ #js.init-tasks i))
              (task peer conn)
-             (loop (add1 i)))))
+             (loop (add1 i))))
+          ;; Add beforeunload and unload listeners to close the connection
+          (#js*.window.addEventListener #js"beforeunload"
+            (λ (_)
+              (#js.conn.close)))
+          (#js*.window.addEventListener #js"unload"
+            (λ (_)
+              (#js.conn.close)
+            ))
+          )
         (#js.conn.on #js"open" on-conn-open)
         (#js.conn.on #js"close" (λ (_) (
           ;; TODO: implement disconnect event

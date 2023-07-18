@@ -7,10 +7,9 @@
 
 ; TODO:
 
-; - implement universe/server for bouncing ball
-;   - features to handle client disconnections
-;   - UI interface
-; - Implement iWorld datatype
+; - features to handle client disconnections
+; - implement world names
+; - Universe UI interface
 ; - consider reworking implementation of package datatype
 ;   to be like the bundle and mail implementations (w/ aliases)
 ; - Work on implementing missing API features (consider doing chat-room example as test)
