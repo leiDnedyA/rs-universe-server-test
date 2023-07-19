@@ -1,7 +1,7 @@
 #lang racketscript/base
 (require "universe.rkt"
-         "bouncing-ball/client.rkt"
-         "bouncing-ball/server.rkt"
+         "chat-room/client.rkt"
+         "chat-room/server.rkt"
          racketscript/htdp/image)
 
 ; TODO:
