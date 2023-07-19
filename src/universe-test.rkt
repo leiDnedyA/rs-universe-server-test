@@ -6,21 +6,10 @@
 
 (provide start-universe-test)
 
-;; Test for low-to-remove
-; (define (handle-new ws iw)
-;   (define m (make-mail iw #js"test"))
-;   (define ws* (append ws (list iw)))
-;   (define ws-len (length ws*))
-;   (define to-remove '())
-;   (if (> ws-len 2)
-;       (begin
-;         (set! to-remove (list (first ws*)))
-;         (set! ws* (rest ws*)))
-;       (void))
-;   (make-bundle ws* (list m) to-remove))
-
 (define (make-curr-mail ws)
-  (list (make-mail (first ws) #js"it-is-your-turn")))
+  (define curr-iw (first ws))
+  ; (#js*.console.log ($/str (iworld-name curr-iw)))
+  (list (make-mail curr-iw #js"it-is-your-turn")))
 
 (define (handle-new ws iw)
   (define ws* (append ws (list iw)))

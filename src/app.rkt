@@ -7,7 +7,7 @@
 
 ; TODO:
 
-; - features to handle client disconnections
+; - finish world names implementation (revert to previous commit if necessary)
 ; - implement world names
 ; - Universe UI interface
 ; - consider reworking implementation of package datatype
@@ -18,7 +18,11 @@
 ;   to universe-specific ones
 ;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
 ;   do some bug testing
+; - Investigate bug: requestanimationframe not working when window is hidden?
 ; - Figure out a way to configure Peer server to not allow custom IDs in client code
+; - Look into design patterns for handling user disconnections (e.g user timeout)
+;     - look into universe implementation
+;     - figure out standard accepted way for distributed programs to handle the problem
 
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
@@ -32,10 +36,15 @@
   (define page-title (#js*.document.querySelector #js"title"))
   ($/:= #js.page-title.innerHTML (js-string str)))
 
+($/:= #js*.window.startClient
+  (lambda ()
+    (remove-setup)
+    (start-world ($/str "test"))))
+
 (#js.world-form.addEventListener #js"submit"
   (lambda (e)
     (define name #js.username-input.value)
-    (start-world ($/str "test"))
+    (start-world name)
     (remove-setup)
     (set-title ($/str name))))
 

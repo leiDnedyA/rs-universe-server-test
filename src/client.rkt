@@ -51,5 +51,6 @@
               [to-draw draw]
               [on-receive receive]
               [register "server"]
+              [bb-name name]
               [on-key handle-key]
               [stop-when stop?]))

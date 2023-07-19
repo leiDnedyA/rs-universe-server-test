@@ -243,8 +243,11 @@
                      #:with-this this
                      (define (init-task peer)
                        (define (handle-connection conn)
-                         ;; TODO: Add disconnect listener to conn
-                         (define iw (make-iworld conn "test"))
+                         (define name "client name")
+                         (if #js.conn.label
+                             (set! name ($/str #js.conn.label))
+                             (void))
+                         (define iw (make-iworld conn name))
                          (#js.u.-active-iworlds.push iw)
                          (#js.u.queue-event ($/obj [type #js"on-new"]
                                                    [iWorld iw]))
@@ -282,7 +285,7 @@
                          (#js.u.queue-event ($/obj [type #js"on-disconnect"]
                                                    [iWorld iworld]))))
                      (void))]
-     [deregister   (λ ()
+     [deregister   (λ () ; TODO: implement this? maybe?
                      #:with-this this
                      (void))]
      [invoke       (λ (state evt)

@@ -12,6 +12,7 @@
          on-release
          on-receive ;; Experimental
          register ;; Experimental
+         bb-name ;; Experimental
          to-draw
          stop-when
          big-bang
@@ -66,6 +67,9 @@
     (:= #js.this.-world-change-listeners  ($/array))
     (:= #js.this.-package-listeners       ($/array))
 
+    (:= #js.this.-uses-peer  #f)
+    (:= #js.this.-peer-name  #js"client")
+    (:= #js.this.-server-id  #js"server")
     (:= #js.this.-peer            $/undefined)
     (:= #js.this.-conn            $/undefined)
     (:= #js.this.-peer-init-tasks ($/array))
@@ -90,6 +94,10 @@
      (#js.canvas.focus)
 
      (#js.this.register-handlers)
+
+     (if #js.this.-uses-peer
+         (#js.this.init-peer-connection)
+         (void))
 
      ;; Set canvas size as the size of first world
      (define draw-handler ($ #js.this.-active-handlers #js"to-draw"))
@@ -229,14 +237,15 @@
      (:= #js.this.-idle #t))]
   [init-peer-connection
    ; Should we let users pick their own IDs? Would that be a security issue?
-   (λ (server-id)
+   (λ ()
      #:with-this this
      (define peer (new (Peer)))
      (:= #js.this.-peer peer)
      
      (#js.peer.on #js"open"
       (λ ()      
-        (define conn (#js.peer.connect (js-string server-id)))
+        (define conn (#js.peer.connect (js-string #js.this.-server-id)
+                                       ($/obj [label #js.this.-peer-name])))
         (:= #js.this.-conn conn)
 
         (define init-tasks #js.this.-peer-init-tasks)
@@ -552,7 +561,8 @@
      [name         #js"register"]
      [register     (λ ()
                      #:with-this this
-                     (#js.bb.init-peer-connection server-id)
+                     (:= #js.bb.-server-id server-id)
+                     (:= #js.bb.-uses-peer #t)
                      0)]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
@@ -569,3 +579,12 @@
                      #:with-this this
                      #t
                      )])))
+
+(define (bb-name name)
+  (λ (bb)
+    ($/obj
+      [name        #js"name"]
+      [register    (λ ()
+                     #:with-this this
+                     (:= #js.bb.-peer-name ($/str name))
+                     (void))])))
