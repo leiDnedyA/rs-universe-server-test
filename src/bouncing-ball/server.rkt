@@ -1,10 +1,10 @@
 #lang racketscript/base
 
-(require "universe.rkt"
+(require "../universe.rkt"
          racketscript/htdp/image
          racket/list)
 
-(provide start-universe-test)
+(provide start-universe)
 
 (define (make-curr-mail ws)
   (define curr-iw (first ws))
@@ -30,7 +30,7 @@
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
-(define (start-universe-test)
+(define (start-universe)
   (universe '()
     [u-on-new        handle-new]
     [u-on-msg        handle-msg]

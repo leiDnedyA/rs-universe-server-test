@@ -8,13 +8,12 @@
 ; TODO:
 ; implement deregister for on-msg handler
 ; implement the following handlers
-; - on-new
-; - on-msg
-; - on-disconnect
-; - state
 ; - to-string
-; - port
 ; - check-with
+; - state
+
+; Variations from api:
+; - no port handler
 
 (provide universe
 

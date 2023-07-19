@@ -1,28 +1,24 @@
 #lang racketscript/base
 (require "universe.rkt"
-         "client.rkt"
-         "server.rkt"
-         "universe-test.rkt" ;; Remove when done testing universe implementation
+         "bouncing-ball/client.rkt"
+         "bouncing-ball/server.rkt"
          racketscript/htdp/image)
 
 ; TODO:
 
-; - finish world names implementation (revert to previous commit if necessary)
-; - implement world names
-; - Universe UI interface
-; - consider reworking implementation of package datatype
-;   to be like the bundle and mail implementations (w/ aliases)
 ; - Work on implementing missing API features (consider doing chat-room example as test)
-; - document any deviations from the htdp/universe API (e.g register to peer id instead of ip)
-; - write macros to convert handler names passed to universe function 
-;   to universe-specific ones
-;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
-;   do some bug testing
-; - Investigate bug: requestanimationframe not working when window is hidden?
-; - Figure out a way to configure Peer server to not allow custom IDs in client code
+; - Universe UI interface
 ; - Look into design patterns for handling user disconnections (e.g user timeout)
 ;     - look into universe implementation
 ;     - figure out standard accepted way for distributed programs to handle the problem
+; - write macros to convert handler names passed to universe function 
+;   to universe-specific ones
+;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
+; - document any deviations from the htdp/universe API (e.g register to peer id instead of ip)
+; - consider reworking implementation of package datatype
+;   to be like the bundle and mail implementations (w/ aliases)
+; - Investigate bug: requestanimationframe not working when window is hidden?
+; - Figure out a way to configure Peer server to not allow custom IDs in client code
 
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
@@ -50,7 +46,7 @@
 
 (#js.universe-button.addEventListener #js"click"
   (lambda ()
-    (start-universe-test)
+    (start-universe)
     ; (start-universe)
     (remove-setup)
     (set-title "Server")))
