@@ -157,9 +157,6 @@
             new-text)))
 
 (define (start-world username)
-  (big-bang (list username '() '())
-    [to-draw draw]))
-
-(big-bang TEST-WORLD
-  [to-draw draw]
-  [on-key handle-key])
+  (big-bang (list username '() '() "")
+    [to-draw draw]
+    [on-key handle-key]))
