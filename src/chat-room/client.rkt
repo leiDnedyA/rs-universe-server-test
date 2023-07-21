@@ -1,7 +1,7 @@
 #lang racketscript/base
 
 (require "../universe.rkt"
-         "util/list-op.rkt"
+         "util.rkt"
          racketscript/htdp/image)
 
 (provide start-world)
@@ -27,6 +27,7 @@
 (define FONT-SIZE 12)
 (define MARGIN 3)
 (define MT (empty-scene 400 400))
+(define CHARS-PER-LINE 44) ;; max chars that can fit in the input box
 
 (define (get-client-name ws)
   (list-ref ws 0))
@@ -56,8 +57,14 @@
 
 ;; 300x20px row displaying the current user input
 (define (message-textbox curr-text cursor-pos)
-  (define container (rectangle 300 20 'outline 'black))
-  (define input-text (text curr-text FONT-SIZE 'black))
+  (define container  (rectangle 300 20 'outline 'black))
+  (define text-len (string-length curr-text))
+  (define input-text (text (if (> text-len CHARS-PER-LINE)
+                               (substring curr-text (- text-len CHARS-PER-LINE) text-len)
+                               curr-text)
+                           FONT-SIZE
+                           'black))
+
   (underlay/xy container MARGIN MARGIN input-text))
 
 (define (message-log-display message-list event-list)
@@ -75,12 +82,14 @@
 (define (handle-key ws k)
   (define curr-text (get-curr-input ws))
   (define new-text (cond
+                    [(> (string-length k) 1) curr-text]
                     [(key=? k "\b") (if (<= (string-length curr-text) 0)
                                           curr-text
                                           (substring curr-text
                                                      0
                                                      (- (string-length curr-text) 1)))]
                     [else (string-append curr-text k)]))
+  (#js*.console.log (string-length new-text))
   (list (get-client-name ws)
         (get-connected-users ws)
         (get-event-messages ws)
