@@ -2,8 +2,12 @@
 
 (require racket/list)
 
-(provide insertion-sort
+(provide slice-list
+         insertion-sort
          text-width)
+
+(define (slice-list l start stop)
+  (take (drop l start) (- stop start)))
 
 (define (insertion-sort los sorted-los)
   (cond [(empty? sorted-los) (list los)]

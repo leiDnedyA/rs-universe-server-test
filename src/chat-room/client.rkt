@@ -12,22 +12,74 @@
 ;; String of only letters and numbers between 1 and 12 chars long
 
 ;; MsgFromServer
-;; (list 'userlist ListOf<UserName>) ;; don't include in event-messages
-;; (list 'join UserName)
-;; (list 'leave UserName)
-;; (list 'error Message)
-;; (list 'private UserName Message) ;; a private msg from a user
-;; (list 'broadcase UserName Message) ;; a public msg from a user
+;; (list "userlist" ListOf<UserName>) ;; don't include in event-messages
+;; (list "join" UserName)
+;; (list "leave" UserName)
+;; (list "error" Message)
+;; (list "private" UserName Message) ;; a private msg from a user
+;; (list "broadcast" UserName Message) ;; a public msg from a user
 
 ;; WorldState
 ;; (list client-name<UserName> connected-users<ListOf<UserName>> event-messages<ListOf<MsgFromServer>> curr-input<String>)
 
-(define TEST-WORLD (list "Ayden" (list "Bob" "Josh" "Ken" "Cindy" "Lucy" "Crystal" "Ayden") '() ""))
+(define TEST-WORLD (list "Ayden" 
+                         (list "Bob" "Josh" "Ken" "Cindy" "Lucy" "Crystal" "Ayden")
+                         (list (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               (list "join" "Ayden")
+                               (list "join" "Crystal")
+                               (list "broadcast" "Crystal" "Hey guys")
+                               (list "private" "Crystal" "Hey dude")
+                               (list "error" "Error test")
+                               (list "leave" "Crystal")
+                               )
+                         ""))
 
 (define FONT-SIZE 12)
 (define MARGIN 3)
 (define MT (empty-scene 400 400))
 (define CHARS-PER-LINE 44) ;; max chars that can fit in the input box
+(define MAX-EVENTS-DISPLAY 25)
 
 (define (get-client-name ws)
   (list-ref ws 0))
@@ -67,17 +119,46 @@
 
   (underlay/xy container MARGIN MARGIN input-text))
 
-(define (message-log-display message-list event-list)
-  0) ;; 200x380px box displaying log of messages and events
+;; 300x380px box displaying log of messages and events
+(define (message-log-display event-list username)
+  (define background (rectangle 300 380 'outline 'black))
+  (define count 0)
+  (foldl (lambda (evt res)
+           (define evt-type (list-ref evt 0))
+           (define (add-text img)
+             (define new-res (underlay/xy res 0 (* count FONT-SIZE) img))
+             (set! count (+ count 1))
+             new-res)
+           (define (message-text user msg color)
+              (text (format "<~a> ~a" user msg) FONT-SIZE color))
+           (case evt-type
+                 [("broadcast") (add-text (message-text (list-ref evt 1)
+                                                        (list-ref evt 2)
+                                                        'black))]
+                 [("private")   (add-text (message-text (format "~a->~a" (list-ref evt 1) username)
+                                                        (list-ref evt 2)
+                                                        'blue))]
+                 [("join")      (add-text (text (format "~a joined."        (list-ref evt 1))
+                                                FONT-SIZE
+                                                'gray))]
+                 [("leave")     (add-text (text (format "~a left the chat." (list-ref evt 1))
+                                                FONT-SIZE
+                                                'gray))]
+                 [("error")     (add-text (text (list-ref evt 1) FONT-SIZE 'red))]
+                 [else res]))
+         background
+         event-list))
 
 (define (draw ws)
-  (define textbox (message-textbox (get-curr-input ws)))
+  (define textbox (message-textbox          (get-curr-input ws)))
   (define users   (participant-names-column (get-connected-users ws)))
+  (define log     (message-log-display      (get-event-messages ws) (get-client-name ws)))
 
-  (underlay/xy
-   (underlay/xy MT 0 0 users)
-   100 380
-   textbox))
+  (underlay/xy (underlay/xy (underlay/xy MT 0 0 users)
+                            100 380
+                            textbox)
+               100 0
+               log))
 
 (define (handle-key ws k)
   (define curr-text (get-curr-input ws))
@@ -89,7 +170,6 @@
                                                      0
                                                      (- (string-length curr-text) 1)))]
                     [else (string-append curr-text k)]))
-  (#js*.console.log (string-length new-text))
   (list (get-client-name ws)
         (get-connected-users ws)
         (get-event-messages ws)
@@ -98,8 +178,6 @@
 (define (start-world username)
   (big-bang (list username '() '())
     [to-draw draw]))
-
-; (#js*.console.log (draw TEST-WORLD))
 
 (big-bang TEST-WORLD
   [to-draw draw]
