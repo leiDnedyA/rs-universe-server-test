@@ -44,7 +44,7 @@
                                (list "leave" "Crystal")
                                (list "join" "Ayden")
                                )
-                         ""))
+                         "Hey what's up!"))
 
 (define FONT-SIZE 12)
 (define MARGIN 3)
@@ -145,10 +145,16 @@
                                                      0
                                                      (- (string-length curr-text) 1)))]
                     [else (string-append curr-text k)]))
-  (list (get-client-name ws)
-        (get-connected-users ws)
-        (get-event-messages ws)
-        new-text))
+  (if (key=? k "\r")
+      (make-package (list (get-client-name ws)
+                          (get-connected-users ws)
+                          (get-event-messages ws)
+                          "")
+                    curr-text)
+      (list (get-client-name ws)
+            (get-connected-users ws)
+            (get-event-messages ws)
+            new-text)))
 
 (define (start-world username)
   (big-bang (list username '() '())
