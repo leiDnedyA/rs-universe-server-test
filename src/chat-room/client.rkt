@@ -8,6 +8,9 @@
 
 ;; Example based on https://course.khoury.northeastern.edu/cs5010sp15/set08.html
 
+;; TODO: Implement encoding/decoding of racket elements so that complex
+;; datatypes like MsgFromServer can be more easily sent
+
 ;; UserName
 ;; String of only letters and numbers between 1 and 12 chars long
 
@@ -156,7 +159,18 @@
             (get-event-messages ws)
             new-text)))
 
+(define (handle-receive ws msg)
+  (#js*.console.log (open-output-string msg))
+  ; (define username (get-client-name ws))
+  ; (define users ...)
+  ; (define messages ...)
+  ; (define input (get-curr-input ws))
+  ; (list username users messages input)
+  ws)
+
 (define (start-world username)
   (big-bang (list username '() '() "")
     [to-draw draw]
-    [on-key handle-key]))
+    [on-key handle-key]
+    [on-receive handle-receive]
+    [register "server"]))
