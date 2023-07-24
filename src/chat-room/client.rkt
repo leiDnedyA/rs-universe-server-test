@@ -22,7 +22,9 @@
 ;; (list "private" UserName Message) ;; a private msg from a user
 ;; (list "broadcast" UserName Message) ;; a public msg from a user
 
-;; {"type": "userlist", "content": Array<UserName>}
+;; Current solution: JSON version of MsgFromServer
+;; {"type": "userlist", "content": Array<UserName : js-string>}
+;; {"type": "broadcast", "sender": <UserName : js-string>, "content": js-string}
 
 ;; WorldState
 ;; (list client-name<UserName> connected-users<ListOf<UserName>> event-messages<ListOf<MsgFromServer>> curr-input<String>)
@@ -158,7 +160,7 @@
                           (get-connected-users ws)
                           (get-event-messages ws)
                           "")
-                    curr-text)
+                    (js-string curr-text))
       (list (get-client-name ws)
             (get-connected-users ws)
             (get-event-messages ws)
@@ -172,8 +174,12 @@
 
   (define msg-json (#js*.JSON.parse msg))
   (case (js-string->string #js.msg-json.type)
-        [("userlist") (set! users (parse-user-list #js.msg-json.content))])
-  
+        [("userlist")   (set! users (parse-user-list #js.msg-json.content))]
+        [("broadcast")  (set! messages (append messages 
+                                               (list (list "broadcast" 
+                                                           (js-string->string #js.msg-json.sender)
+                                                           (js-string->string #js.msg-json.content)))))])
+
   (list username users messages input))
 
 

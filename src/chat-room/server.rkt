@@ -25,6 +25,9 @@
                         ""
                         ws)))
 
+(define (make-broadcast sender msg)
+  (format "[]"))
+
 (define (mail-to-all ws content)
   (foldl (lambda (iw result)
            (append result (list (make-mail iw content))))
@@ -35,8 +38,9 @@
   (define client-list (make-client-list ws))
   (mail-to-all ws (msg-from-server "userlist" client-list)))
 
-(define (msg-from-server type content)
-  (js-string (format "{ \"type\": ~s, \"content\": ~a}" type content)))
+;; type: string, content: any(if string, wrap in quotes), sender: string
+(define (msg-from-server type content [sender ""])
+  (js-string (format "{ \"type\": ~s, \"content\": ~a, \"sender\": ~s}" type content sender)))
 
 (define (handle-new ws iw)
   (define ws* (append ws (list iw)))
@@ -45,8 +49,9 @@
   (make-bundle ws* mails to-remove))
 
 (define (handle-msg ws iw msg)
-  (define ws* '())
-  (define mails '())
+  (define msg-mail (msg-from-server "broadcast" (format "\"~a\"" msg) (iworld-name iw)))
+  (define ws* ws)
+  (define mails (mail-to-all ws* msg-mail))
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
