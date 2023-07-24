@@ -247,7 +247,7 @@
         (define conn (#js.peer.connect (js-string #js.this.-server-id)
                                        ($/obj [label #js.this.-peer-name])))
         (:= #js.this.-conn conn)
-
+        (#js*.console.log #js.this.-peer-name)
         (define init-tasks #js.this.-peer-init-tasks)
         
         (define (on-conn-open)
@@ -585,5 +585,5 @@
       [name        #js"name"]
       [register    (λ ()
                      #:with-this this
-                     (:= #js.bb.-peer-name ($/str name))
+                     (:= #js.bb.-peer-name (js-string name))
                      (void))])))

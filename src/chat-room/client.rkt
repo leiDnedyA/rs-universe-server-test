@@ -22,38 +22,26 @@
 ;; (list "private" UserName Message) ;; a private msg from a user
 ;; (list "broadcast" UserName Message) ;; a public msg from a user
 
+;; {"type": "userlist", "content": Array<UserName>}
+
 ;; WorldState
 ;; (list client-name<UserName> connected-users<ListOf<UserName>> event-messages<ListOf<MsgFromServer>> curr-input<String>)
 
-(define TEST-WORLD (list "Ayden" 
-                         (list "Bob" "Josh" "Ken" "Cindy" "Lucy" "Crystal" "Ayden")
-                         (list (list "join" "Ayden")
-                               (list "join" "Crystal")
-                               (list "broadcast" "Crystal" "Hey guys")
-                               (list "private" "Crystal" "Hey dude")
-                               (list "error" "Error test")
-                               (list "leave" "Crystal")
-                               (list "join" "Ayden")
-                               (list "join" "Crystal")
-                               (list "broadcast" "Crystal" "Hey guys")
-                               (list "private" "Crystal" "Hey dude")
-                               (list "error" "Error test")
-                               (list "leave" "Crystal")
-                               (list "join" "Ayden")
-                               (list "join" "Crystal")
-                               (list "broadcast" "Crystal" "Hey guys")
-                               (list "private" "Crystal" "Hey dude")
-                               (list "error" "Error test")
-                               (list "leave" "Crystal")
-                               (list "join" "Ayden")
-                               )
-                         "Hey what's up!"))
+
+;;
+;; Constants
+;;
 
 (define FONT-SIZE 12)
 (define MARGIN 3)
 (define MT (empty-scene 400 400))
 (define CHARS-PER-LINE 44) ;; max chars that can fit in the input box
 (define MAX-MESSAGES 25)
+
+
+;;
+;; WorldState parsers
+;;
 
 (define (get-client-name ws)
   (list-ref ws 0))
@@ -67,7 +55,21 @@
 (define (get-curr-input ws)
   (list-ref ws 3))
 
-;; 100x400px column displaying names sorted alphabetically
+
+;;
+;; Message Parsing
+;;
+
+(define (parse-user-list u-list)
+  (#js.u-list.reduce (lambda (result curr)
+                        (append result (list (js-string->string curr))))
+                     '()))
+
+
+;;
+;; Drawing Functions
+;;
+
 (define (participant-names-column names)
   (define container (rectangle 100 400 'outline 'black))
   (define i 0)
@@ -81,7 +83,6 @@
          container
          names))
 
-;; 300x20px row displaying the current user input
 (define (message-textbox curr-text cursor-pos)
   (define container  (rectangle 300 20 'outline 'black))
   (define text-len (string-length curr-text))
@@ -93,7 +94,6 @@
 
   (underlay/xy container MARGIN MARGIN input-text))
 
-;; 300x380px box displaying log of messages and events
 (define (message-log-display event-list username)
   (define background (rectangle 300 380 'outline 'black))
   (define count 0)
@@ -138,6 +138,11 @@
                100 0
                log))
 
+
+;;
+;; Event Handlers
+;;
+
 (define (handle-key ws k)
   (define curr-text (get-curr-input ws))
   (define new-text (cond
@@ -160,17 +165,26 @@
             new-text)))
 
 (define (handle-receive ws msg)
-  (#js*.console.log (open-output-string msg))
-  ; (define username (get-client-name ws))
-  ; (define users ...)
-  ; (define messages ...)
-  ; (define input (get-curr-input ws))
-  ; (list username users messages input)
-  ws)
+  (define username (get-client-name ws))
+  (define users (get-connected-users ws))
+  (define messages (get-event-messages ws))
+  (define input (get-curr-input ws))
+
+  (define msg-json (#js*.JSON.parse msg))
+  (case (js-string->string #js.msg-json.type)
+        [("userlist") (set! users (parse-user-list #js.msg-json.content))])
+  
+  (list username users messages input))
+
+
+;;
+;; Start func
+;;
 
 (define (start-world username)
   (big-bang (list username '() '() "")
     [to-draw draw]
     [on-key handle-key]
     [on-receive handle-receive]
+    [bb-name username]
     [register "server"]))

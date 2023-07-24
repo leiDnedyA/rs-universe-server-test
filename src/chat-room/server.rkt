@@ -16,16 +16,31 @@
 ;; - add event to the event list
 
 (define (make-client-list ws)
+  (define count 0)
   (format "[~a]" (foldl (lambda (iw result)
-                          (#js*.console.log (iworld-name iw))
-                          (string-append result (format "~s, " (iworld-name iw))))
+                          (set! count (+ 1 count))
+                          (if (equal? count (length ws))
+                              (string-append result (format "~s" (iworld-name iw)))
+                              (string-append result (format "~s, " (iworld-name iw)))))
                         ""
                         ws)))
 
+(define (mail-to-all ws content)
+  (foldl (lambda (iw result)
+           (append result (list (make-mail iw content))))
+         '()
+         ws))
+
+(define (client-list-mails ws)
+  (define client-list (make-client-list ws))
+  (mail-to-all ws (msg-from-server "userlist" client-list)))
+
+(define (msg-from-server type content)
+  (js-string (format "{ \"type\": ~s, \"content\": ~a}" type content)))
+
 (define (handle-new ws iw)
   (define ws* (append ws (list iw)))
-  (#js*.console.log (js-string (make-client-list ws*)))
-  (define mails '())
+  (define mails (client-list-mails ws*))
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
@@ -36,8 +51,8 @@
   (make-bundle ws* mails to-remove))
 
 (define (handle-disconnect ws iw)
-  (define ws* '())
-  (define mails '())
+  (define ws* (remove iw ws))
+  (define mails (client-list-mails ws*))
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 

@@ -244,7 +244,7 @@
                        (define (handle-connection conn)
                          (define name "client name")
                          (if #js.conn.label
-                             (set! name ($/str #js.conn.label))
+                             (set! name (js-string->string #js.conn.label))
                              (void))
                          (define iw (make-iworld conn name))
                          (#js.u.-active-iworlds.push iw)
