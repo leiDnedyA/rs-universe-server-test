@@ -15,12 +15,12 @@
 ;; String of only letters and numbers between 1 and 12 chars long
 
 ;; MsgFromServer
-;; (list "userlist" ListOf<UserName>) ;; don't include in event-messages
-;; (list "join" UserName)
-;; (list "leave" UserName)
-;; (list "error" Message)
-;; (list "private" UserName Message) ;; a private msg from a user
-;; (list "broadcast" UserName Message) ;; a public msg from a user
+;; (list 'userlist ListOf<UserName>) ;; don't include in event-messages
+;; (list 'join UserName)
+;; (list 'leave UserName)
+;; (list 'error Message)
+;; (list 'private UserName Message) ;; a private msg from a user
+;; (list 'broadcast UserName Message) ;; a public msg from a user
 
 ;; Current solution: JSON version of MsgFromServer
 ;; {"type": "userlist", "content": Array<UserName : js-string>}

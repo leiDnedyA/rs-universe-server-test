@@ -1,6 +1,7 @@
 #lang racketscript/base
 
 (require "../universe.rkt"
+         "util.rkt"
          racketscript/htdp/image)
 
 (provide start-universe)
@@ -40,7 +41,8 @@
 
 ;; type: string, content: any(if string, wrap in quotes), sender: string
 (define (msg-from-server type content [sender ""])
-  (js-string (format "{ \"type\": ~s, \"content\": ~a, \"sender\": ~s}" type content sender)))
+  ; (js-string (format "{ \"type\": ~s, \"content\": ~a, \"sender\": ~s}" type content sender))
+  (encode-data (list type content sender)))
 
 (define (handle-new ws iw)
   (define ws* (append ws (list iw)))

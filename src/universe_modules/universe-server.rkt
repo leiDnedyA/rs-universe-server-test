@@ -3,7 +3,8 @@
 (require (for-syntax racketscript/base
                      syntax/parse)
          "universe-primitives.rkt"
-         "jscommon.rkt")
+         "jscommon.rkt"
+         "encode-decode.rkt")
 
 ; TODO:
 ; implement deregister for on-msg handler
