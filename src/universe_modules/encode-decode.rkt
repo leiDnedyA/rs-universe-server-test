@@ -1,10 +1,12 @@
 #lang racketscript/base
 
 (provide encode-data
-         decode-data)
+         decode-data
+         
+         js-string?)
 
 (define (js-string? s)
-  (or ($/typeof s "string") ($/instanceof s "string")))
+  (or ($/typeof s "string") ($/instanceof s #js*.String)))
 
 (define DATA-TYPE-WARNING #js"racketscript/htdp/universe: Unsupported datatype being passed to/from server.")
 
@@ -25,7 +27,7 @@
         ; [(js-string? data) ($/obj [type #js"js-string"]
         ;                           [val data])]
         [else              (begin 
-                             (#js*.console.warn DATA-TYPE-WARNING)
+                             (#js*.console.warn ($/array DATA-TYPE-WARNING data))
                              ($/obj [type #js"unknown"]
                                   [val data]))]))
 

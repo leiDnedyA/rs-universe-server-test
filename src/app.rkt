@@ -1,21 +1,22 @@
 #lang racketscript/base
 (require "universe.rkt"
-         "chat-room/client.rkt"
-         "chat-room/server.rkt"
-        ;  "universe_modules/encode-decode.rkt"
+        ;  "chat-room/client.rkt"
+        ;  "chat-room/server.rkt"
+        "bouncing-ball/client.rkt"
+        "bouncing-ball/server.rkt"
+        "universe_modules/encode-decode.rkt"
         ;  "universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
 
 ; TODO:
 
 ; - Encoding/decoding: Add more error messages if the user tries to encode an unsupported type
-;     - Implement encoding/decoding directly into universe.rkt funcs
 ;     - Allow for sending of JSON and js-strings
-; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - Universe UI interface
 ; - Look into design patterns for handling user disconnections (e.g user timeout)
 ;     - look into universe implementation
 ;     - figure out standard accepted way for distributed programs to handle the problem
+; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - write macros to convert handler names passed to universe function 
 ;   to universe-specific ones
 ;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
