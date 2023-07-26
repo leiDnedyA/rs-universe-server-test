@@ -22,8 +22,8 @@
                                   [val (js-string (symbol->string data))])]
         [(boolean? data)   ($/obj [type #js"boolean"]
                                   [val data])]
-        [(js-string? data) ($/obj [type #js"js-string"]
-                                  [val data])]
+        ; [(js-string? data) ($/obj [type #js"js-string"]
+        ;                           [val data])]
         [else              (begin 
                              (#js*.console.warn DATA-TYPE-WARNING)
                              ($/obj [type #js"unknown"]

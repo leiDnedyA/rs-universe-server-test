@@ -18,14 +18,7 @@
 ;; - add event to the event list
 
 (define (make-client-list ws)
-  (define count 0)
-  (format "[~a]" (foldl (lambda (iw result)
-                          (set! count (+ 1 count))
-                          (if (equal? count (length ws))
-                              (string-append result (format "~s" (iworld-name iw)))
-                              (string-append result (format "~s, " (iworld-name iw)))))
-                        ""
-                        ws)))
+  (foldl (lambda (iw result) (append result (list (iworld-name iw)))) '() ws))
 
 (define (make-broadcast sender msg)
   (format "[]"))
@@ -38,7 +31,7 @@
 
 (define (client-list-mails ws)
   (define client-list (make-client-list ws))
-  (mail-to-all ws (msg-from-server "userlist" client-list)))
+  (mail-to-all ws (msg-from-server 'userlist client-list)))
 
 ;; type: string, content: any(if string, wrap in quotes), sender: string
 (define (msg-from-server type content [sender ""])
@@ -52,7 +45,7 @@
   (make-bundle ws* mails to-remove))
 
 (define (handle-msg ws iw msg)
-  (define msg-mail (msg-from-server "broadcast" (format "\"~a\"" msg) (iworld-name iw)))
+  (define msg-mail (encode-data (list 'broadcast (decode-data msg) (iworld-name iw))))
   (define ws* ws)
   (define mails (mail-to-all ws* msg-mail))
   (define to-remove '())

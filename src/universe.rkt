@@ -4,6 +4,8 @@
                      syntax/parse)
          "./universe_modules/universe-primitives.rkt"
          "./universe_modules/jscommon.rkt"
+         "./universe_modules/encode-decode.rkt"
+         "./universe_modules/debug-tools.rkt"
          "./universe_modules/universe-server.rkt")
 
 (provide on-mouse
@@ -527,7 +529,7 @@
                             (λ (message)
                               #:with-this this
                               ;; TODO: Implement encoding for racket primitives
-                              (#js.conn.send message)
+                              (#js.conn.send (encode-data message))
                               0))
    
                         (#js.bb.add-package-listener #js.this.package-listener)))
@@ -549,7 +551,7 @@
                      0)]
      [invoke       (λ (world evt)
                      #:with-this this
-                     (#js.bb.change-world (cb world #js.evt.msg))
+                     (#js.bb.change-world (cb world (decode-data #js.evt.msg)))
                      #t
                      )])))
 
