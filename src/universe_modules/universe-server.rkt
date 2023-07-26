@@ -2,9 +2,10 @@
 
 (require (for-syntax racketscript/base
                      syntax/parse)
+         "encode-decode.rkt"
+         "debug-tools.rkt"
          "universe-primitives.rkt"
-         "jscommon.rkt"
-         "encode-decode.rkt")
+         "jscommon.rkt")
 
 ; TODO:
 ; implement deregister for on-msg handler
@@ -140,7 +141,7 @@
        (for-each (lambda (curr-mail)
                    (define iworld (mail-to curr-mail))
                    (define conn (iworld-conn iworld))
-                   (#js.conn.send (mail-content curr-mail)))
+                   (#js.conn.send (encode-data (mail-content curr-mail))))
                  mails)
 
        ;; Remove all worlds in low-to-remove
@@ -311,5 +312,5 @@
                      #:with-this this
                      (void))]
      [invoke       (λ (state evt)
-                     (#js.u.change-state (cb state #js.evt.iWorld #js.evt.msg))
+                     (#js.u.change-state (cb state #js.evt.iWorld (decode-data #js.evt.msg)))
                      #t)])))

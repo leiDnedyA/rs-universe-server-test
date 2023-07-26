@@ -31,7 +31,7 @@
 
 (define (client-list-mails ws)
   (define client-list (make-client-list ws))
-  (mail-to-all ws (msg-from-server 'userlist client-list)))
+  (mail-to-all ws (list 'userlist client-list)))
 
 ;; type: string, content: any(if string, wrap in quotes), sender: string
 (define (msg-from-server type content [sender ""])
@@ -45,7 +45,7 @@
   (make-bundle ws* mails to-remove))
 
 (define (handle-msg ws iw msg)
-  (define msg-mail (encode-data (list 'broadcast (decode-data msg) (iworld-name iw))))
+  (define msg-mail (list 'broadcast msg (iworld-name iw)))
   (define ws* ws)
   (define mails (mail-to-all ws* msg-mail))
   (define to-remove '())

@@ -110,19 +110,19 @@
            (define (message-text user msg color)
               (text (format "<~a> ~a" user msg) FONT-SIZE color))
            (case evt-type
-                 [("broadcast") (add-text (message-text (list-ref evt 1)
+                 [(broadcast) (add-text (message-text (list-ref evt 1)
                                                         (list-ref evt 2)
                                                         'black))]
-                 [("private")   (add-text (message-text (format "~a->~a" (list-ref evt 1) username)
+                 [(private)   (add-text (message-text (format "~a->~a" (list-ref evt 1) username)
                                                         (list-ref evt 2)
                                                         'blue))]
-                 [("join")      (add-text (text (format "~a joined."        (list-ref evt 1))
+                 [(join)      (add-text (text (format "~a joined."        (list-ref evt 1))
                                                 FONT-SIZE
                                                 'gray))]
-                 [("leave")     (add-text (text (format "~a left the chat." (list-ref evt 1))
+                 [(leave)     (add-text (text (format "~a left the chat." (list-ref evt 1))
                                                 FONT-SIZE
                                                 'gray))]
-                 [("error")     (add-text (text (list-ref evt 1) FONT-SIZE 'red))]
+                 [(error)     (add-text (text (list-ref evt 1) FONT-SIZE 'red))]
                  [else res]))
          background
          (if (> (length event-list) MAX-MESSAGES)
@@ -174,17 +174,12 @@
   (define messages (get-event-messages ws))
   (define input (get-curr-input ws))
 
-  (console-log-rkt-list msg)
-  
-  ; (case (js-string->string #js.msg-json.type)
-  ;       [("userlist")   (set! users (parse-user-list #js.msg-json.content))]
-  ;       [("broadcast")  (set! messages (append messages 
-  ;                                              (list (list "broadcast" 
-  ;                                                          (js-string->string #js.msg-json.sender)
-  ;                                                          (js-string->string #js.msg-json.content)))))])
-
+  (define msg-type (list-ref msg 0))
+  (case msg-type
+        [(userlist)   (set! users (list-ref msg 1))]
+        [(broadcast)  (set! messages (append messages (list msg)))])
+        
   (list username users messages input))
-
 
 ;;
 ;; Start func
