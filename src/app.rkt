@@ -2,7 +2,7 @@
 (require "universe.rkt"
          "chat-room/client.rkt"
          "chat-room/server.rkt"
-         "universe_modules/encode-decode.rkt"
+         "universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
 
 ; TODO:
@@ -51,3 +51,5 @@
     ; (start-universe)
     (remove-setup)
     (set-title "Server")))
+
+(console-log-rkt-list (list "a" "b" "c" #js"1"))

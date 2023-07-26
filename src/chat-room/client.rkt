@@ -2,6 +2,7 @@
 
 (require "../universe.rkt"
          "util.rkt"
+         "../universe_modules/encode-decode.rkt"
          racketscript/htdp/image)
 
 (provide start-world)
@@ -172,13 +173,17 @@
   (define messages (get-event-messages ws))
   (define input (get-curr-input ws))
 
-  (define msg-json (#js*.JSON.parse msg))
-  (case (js-string->string #js.msg-json.type)
-        [("userlist")   (set! users (parse-user-list #js.msg-json.content))]
-        [("broadcast")  (set! messages (append messages 
-                                               (list (list "broadcast" 
-                                                           (js-string->string #js.msg-json.sender)
-                                                           (js-string->string #js.msg-json.content)))))])
+
+  (define msg-decoded (decode-data msg))
+
+  (#js*.console.log msg-decoded)
+  
+  ; (case (js-string->string #js.msg-json.type)
+  ;       [("userlist")   (set! users (parse-user-list #js.msg-json.content))]
+  ;       [("broadcast")  (set! messages (append messages 
+  ;                                              (list (list "broadcast" 
+  ;                                                          (js-string->string #js.msg-json.sender)
+  ;                                                          (js-string->string #js.msg-json.content)))))])
 
   (list username users messages input))
 
