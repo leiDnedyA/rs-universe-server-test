@@ -45,7 +45,7 @@
   (make-bundle ws* mails to-remove))
 
 (define (handle-msg ws iw msg)
-  (define msg-mail (list 'broadcast msg (iworld-name iw)))
+  (define msg-mail (list 'broadcast (iworld-name iw) msg))
   (define ws* ws)
   (define mails (mail-to-all ws* msg-mail))
   (define to-remove '())
