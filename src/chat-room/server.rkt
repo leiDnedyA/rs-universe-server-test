@@ -1,6 +1,7 @@
 #lang racketscript/base
 
 (require "../universe.rkt"
+         "../universe_modules/encode-decode.rkt"
          "util.rkt"
          racketscript/htdp/image)
 

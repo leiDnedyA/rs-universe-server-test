@@ -2,6 +2,7 @@
 (require "universe.rkt"
          "chat-room/client.rkt"
          "chat-room/server.rkt"
+         "universe_modules/encode-decode.rkt"
          racketscript/htdp/image)
 
 ; TODO:

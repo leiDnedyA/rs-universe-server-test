@@ -4,7 +4,7 @@
          decode-data)
 
 (define (js-string? s)
-  (string? ($/str s)))
+  (or ($/typeof s "string") ($/instanceof s "string")))
 
 (define DATA-TYPE-WARNING #js"racketscript/htdp/universe: Unsupported datatype being passed to/from server.")
 
