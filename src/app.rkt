@@ -13,9 +13,6 @@
 ; - Look into design patterns for handling user disconnections (e.g user timeout)
 ;     - look into universe implementation
 ;     - figure out standard accepted way for distributed programs to handle the problem
-; - Encoding/decoding: Add more error messages if the user tries to encode an unsupported type
-;     - Support encoding and decoding racket primitives within js objects. e.g {"name": 'Darius}
-;     - Add better type safety / check if data is plain obj or is instance of class
 ; - Universe UI interface
 ; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - write macros to convert handler names passed to universe function 

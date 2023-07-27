@@ -2,6 +2,7 @@
 
 (require (for-syntax racketscript/base
                      syntax/parse)
+         "server-gui.rkt"
          "encode-decode.rkt"
          "debug-tools.rkt"
          "universe-primitives.rkt"
@@ -43,9 +44,12 @@
 (define-proto Universe
   (λ (init-state handlers)
     #:with-this this
+    (#js*.console.log this)
     (:= #js.this.state      init-state)
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
     (:= #js.this.handlers   handlers)
+
+    (:= #js.this.gui (server-gui)) ;; TODO: allow user to pass root element?
 
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-state-change-listeners  ($/array))
