@@ -9,6 +9,12 @@
 (define (js-object? obj)
   ($/typeof obj "object"))
 
+(define (null? val)
+  ($/binop === val $/null))
+
+(define (undefined? val)
+  ($/binop === val $/undefined))
+
 (define (js-array? arr)
   (#js*.Array.isArray arr))
 
@@ -40,6 +46,8 @@
                                result)
                       ($/array)
                       data)]
+        [(null? data)      ($/obj [type #js"null"])]
+        [(undefined? data) ($/obj [type #js"undefined"])]    
         [(number? data)    ($/obj [type #js"number"]
                                   [val data])]
         [(string? data)    ($/obj [type #js"string"]
@@ -64,6 +72,8 @@
   (cond [(#js*.Array.isArray data) (#js.data.reduce (lambda (result curr)
                                                       (append result (list (decode-data curr))))
                                                     '())]
+        [($/binop == #js.data.type #js"null") $/null]
+        [($/binop == #js.data.type #js"undefined") $/undefined]
         [($/binop == #js.data.type #js"number")    #js.data.val]
         [($/binop == #js.data.type #js"string")    (js-string->string #js.data.val)]
         [($/binop == #js.data.type #js"symbol")    (string->symbol (js-string->string #js.data.val))]

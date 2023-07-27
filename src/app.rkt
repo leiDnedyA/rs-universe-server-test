@@ -56,9 +56,3 @@
     (start-universe)
     (remove-setup)
     (set-title "Server")))
-
-(test-encoding "test")
-(test-encoding 'Test)
-(test-encoding ($/obj [val "Hello world"]))
-(test-encoding ($/null))
-(test-encoding ($/undefined))
