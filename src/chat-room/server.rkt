@@ -1,7 +1,6 @@
 #lang racketscript/base
 
 (require "../universe.rkt"
-         "../universe_modules/encode-decode.rkt"
          "util.rkt"
          racketscript/htdp/image)
 
@@ -32,11 +31,6 @@
 (define (client-list-mails ws)
   (define client-list (make-client-list ws))
   (mail-to-all ws (list 'userlist client-list)))
-
-;; type: string, content: any(if string, wrap in quotes), sender: string
-(define (msg-from-server type content [sender ""])
-  ; (js-string (format "{ \"type\": ~s, \"content\": ~a, \"sender\": ~s}" type content sender))
-  (encode-data (list type content sender)))
 
 (define (handle-new ws iw)
   (define ws* (append ws (list iw)))

@@ -5,7 +5,7 @@
         ; "bouncing-ball/client.rkt"
         ; "bouncing-ball/server.rkt"
         "universe_modules/encode-decode.rkt"
-        ;  "universe_modules/debug-tools.rkt"
+         "universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
 
 ; TODO:
@@ -56,3 +56,9 @@
     (start-universe)
     (remove-setup)
     (set-title "Server")))
+
+(test-encoding "test")
+(test-encoding 'Test)
+(test-encoding ($/obj [val "Hello world"]))
+(test-encoding ($/null))
+(test-encoding ($/undefined))
