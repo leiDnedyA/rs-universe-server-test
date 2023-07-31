@@ -62,9 +62,10 @@
        (define log-string (#js.this.logs.reduce (λ (res curr)
                                                   (if ($/binop === res #js"")
                                                       (js-string curr)
-                                                      ($/+ res #js"\n" (js-string curr))))
+                                                      ($/+ res #js"\n\n" (js-string curr))))
                                                 #js""))
        (:= #js.this.textbox.innerHTML log-string)
+       (:= #js.this.textbox.scrollTop #js.this.textbox.scrollHeight)
        (void))])
 
 (define (make-gui root)

@@ -18,6 +18,8 @@
 
 ; Variations from api:
 ; - no port handler
+; - create clause for user to pass in
+;   root element for logging GUI
 
 #|
   u: current universe state
@@ -26,7 +28,6 @@
     "universe --> ~a:\n~a\n" iworld name, mail contents
     "broadcast failed to ~a" iworld name
     "~s not on the list" iworld name
-  
 |#
 
 (provide universe
@@ -93,7 +94,6 @@
   [start
    (λ ()
      #:with-this this
-     (#js*.console.log this)
      (#js.this.init-peer-connection)
      (#js.this.gui.log "a new universe is up and running")
      this)]
@@ -172,7 +172,10 @@
        (for-each (lambda (curr-mail)
                    (define iworld (mail-to curr-mail))
                    (define conn (iworld-conn iworld))
-                   (#js.conn.send (encode-data (mail-content curr-mail))))
+                   (#js.conn.send (encode-data (mail-content curr-mail)))
+                   (#js.this.gui.log (format "universe --> ~a:\n<~a>" 
+                                             (iworld-name iworld)
+                                             (mail-content curr-mail))))
                  mails)
 
        ;; Remove all worlds in low-to-remove
