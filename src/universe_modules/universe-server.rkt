@@ -6,7 +6,8 @@
          "encode-decode.rkt"
          "debug-tools.rkt"
          "universe-primitives.rkt"
-         "jscommon.rkt")
+         "jscommon.rkt"
+         "util.rkt")
 
 ; TODO:
 ; implement deregister for on-msg handler
@@ -21,15 +22,10 @@
 #|
   u: current universe state
   Events to log:
-  - universe start:
-    "a new universe is up and running"
-  - state changes -> "~a" u
   - mail sending:
     "universe --> ~a:\n~a\n" iworld name, mail contents
     "broadcast failed to ~a" iworld name
     "~s not on the list" iworld name
-  - client connects:
-    "~a signed up" iworld name
   - client sends msg:
     "~a --> universe:\n~a\n" iworld name, msg content
   - client disconnects:
@@ -88,6 +84,11 @@
      #:with-this this
      (#js.this.register-handlers)
      (#js.this.gui.show)
+     (define (log-conn conn)
+       (#js.this.gui.log (format-js-str "~a signed up" (js-string->string #js.conn.label))))
+     (#js.this.add-peer-init-task (λ (peer)
+                                    (#js.peer.on #js"connection"
+                                                 log-conn)))
      this)]
   [start
    (λ ()
@@ -188,7 +189,10 @@
            (define listener ($ #js.listeners i))
            (listener new-state)
            (loop (add1 i))))
-       (:= #js.this.state new-state))]
+       (:= #js.this.state new-state)
+      ;  (#js.this.gui.log (format-js-str "~a" new-state))
+      ;; Maybe implement this?
+       )]
     [init-peer-connection
      (λ (id)
        #:with-this this
@@ -228,9 +232,7 @@
             (when (< i #js.tasks.length)
              (define task ($ tasks i))
              (task iw)
-             (loop (add1 i))))
-       )]
-       )
+             (loop (add1 i)))))])
 
 (define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)
@@ -288,7 +290,7 @@
                        (#js.peer.on #js"connection" handle-connection))
                      
                      (#js.u.add-peer-init-task init-task)
-                     
+
                      (void))]
      [deregister   (λ () ;; TODO: implement this
                      #:with-this this
@@ -320,8 +322,7 @@
      [invoke       (λ (state evt)
                      #:with-this this
                      (#js.u.change-state (cb state #js.evt.iWorld))
-                     (void))])
-    ))
+                     (void))])))
 
 (define (u-on-msg cb)
   (λ (u)

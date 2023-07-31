@@ -68,7 +68,6 @@
                                   [val data]))]))
 
 (define (decode-data data)
-  (#js*.console.log data)
   (cond [(#js*.Array.isArray data) (#js.data.reduce (lambda (result curr)
                                                       (append result (list (decode-data curr))))
                                                     '())]

@@ -44,7 +44,7 @@
        #:with-this this
        (#js.this.logs.push (js-string text))
        (#js.this.render)
-       (#js*.console.log text)
+       (#js*.console.log (js-string text))
        (void))]
     [show
      (λ ()
