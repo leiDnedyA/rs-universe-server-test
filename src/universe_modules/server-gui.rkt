@@ -10,6 +10,8 @@
 (provide server-gui)
 
 (define DEFAULT-DISPLAY-MODE #js"block")
+(define WIDTH 500)
+(define HEIGHT 300)
 
 (define-proto ServerLogger
   (λ (root)
@@ -29,6 +31,10 @@
 
     ;; Add more stuff
     (:= #js.this.container.style.display #js"none")
+    (:= #js.this.container.style.width  (js-string (format "~apx" WIDTH)))
+    (:= #js.this.container.style.height (js-string (format "~apx" HEIGHT)))
+    (:= #js.this.textbox.style.width #js"inherit")
+    (:= #js.this.textbox.style.height #js"inherit")
 
     (#js.this.container.appendChild #js.this.textbox)
     (#js.root.appendChild #js.this.container)
@@ -38,6 +44,7 @@
        #:with-this this
        (#js.this.logs.push (js-string text))
        (#js.this.render)
+       (#js*.console.log text)
        (void))]
     [show
      (λ ()
