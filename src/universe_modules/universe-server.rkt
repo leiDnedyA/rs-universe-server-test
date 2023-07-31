@@ -26,12 +26,6 @@
     "universe --> ~a:\n~a\n" iworld name, mail contents
     "broadcast failed to ~a" iworld name
     "~s not on the list" iworld name
-  - client sends msg:
-    "~a --> universe:\n~a\n" iworld name, msg content
-  - client disconnects:
-    "~a !! closed port"
-  - server stops:
-    "stopping the universe\n----------------------------------"
   
 |#
 
@@ -84,15 +78,22 @@
      #:with-this this
      (#js.this.register-handlers)
      (#js.this.gui.show)
-     (define (log-conn conn)
-       (#js.this.gui.log (format-js-str "~a signed up" (js-string->string #js.conn.label))))
+
+     (define (log-connection conn)
+       (#js.this.gui.log (format "~a signed up" (js-string->string #js.conn.label))))
+     (define (log-new-msg iw data)
+       (#js.this.gui.log (format "~a --> universe:\n<~a>"
+                                        (iworld-name iw) (msg->string (decode-data data)))))
+
      (#js.this.add-peer-init-task (λ (peer)
                                     (#js.peer.on #js"connection"
-                                                 log-conn)))
+                                                 log-connection)))
+     (#js.this.-message-listeners.push log-new-msg)
      this)]
   [start
    (λ ()
      #:with-this this
+     (#js*.console.log this)
      (#js.this.init-peer-connection)
      (#js.this.gui.log "a new universe is up and running")
      this)]
@@ -119,7 +120,8 @@
   [stop
    (λ ()
      #:with-this this
-     (#js.this.gui.hide))]
+     (#js.this.gui.log "stopping the universe\n----------------------------------")
+     (void))]
   [clear-event-queue
    (λ ()
      #:with-this this
@@ -190,7 +192,7 @@
            (listener new-state)
            (loop (add1 i))))
        (:= #js.this.state new-state)
-      ;  (#js.this.gui.log (format-js-str "~a" new-state))
+      ;  (#js.this.gui.log (format "~a" new-state))
       ;; Maybe implement this?
        )]
     [init-peer-connection
@@ -232,7 +234,9 @@
             (when (< i #js.tasks.length)
              (define task ($ tasks i))
              (task iw)
-             (loop (add1 i)))))])
+             (loop (add1 i))))
+       (#js.this.gui.log (format "~a !! closed port" (iworld-name iw)))
+       (void))])
 
 (define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
   0)

@@ -3,20 +3,7 @@
 (provide encode-data
          decode-data)
 
-(define (js-string? s)
-  (or ($/typeof s "string") ($/instanceof s #js*.String)))
-
-(define (js-object? obj)
-  ($/typeof obj "object"))
-
-(define (null? val)
-  ($/binop === val $/null))
-
-(define (undefined? val)
-  ($/binop === val $/undefined))
-
-(define (js-array? arr)
-  (#js*.Array.isArray arr))
+(require "util.rkt")
 
 (define DATA-TYPE-WARNING #js"racketscript/htdp/universe: Unsupported datatype being passed to/from server.")
 
