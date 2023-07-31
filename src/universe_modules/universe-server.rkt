@@ -44,7 +44,6 @@
 (define-proto Universe
   (λ (init-state handlers)
     #:with-this this
-    (#js*.console.log this)
     (:= #js.this.state      init-state)
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
     (:= #js.this.handlers   handlers)
