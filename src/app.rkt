@@ -10,11 +10,11 @@
 
 ; TODO:
 
+; - Universe UI interface
+; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - Look into design patterns for handling user disconnections (e.g user timeout)
 ;     - look into universe implementation
 ;     - figure out standard accepted way for distributed programs to handle the problem
-; - Universe UI interface
-; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - write macros to convert handler names passed to universe function 
 ;   to universe-specific ones
 ;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))

@@ -9,6 +9,8 @@
 
 (provide server-gui)
 
+(define DEFAULT-DISPLAY-MODE #js"block")
+
 (define-proto ServerLogger
   (λ (root)
     #:with-this this
@@ -20,16 +22,43 @@
     ;         <button>stop and restart</button>
     ;     </div>
     ; </div>
+    (:= #js.this.logs  ($/array))
 
     (:= #js.this.container  (#js*.document.createElement #js"div"))
     (:= #js.this.textbox    (#js*.document.createElement #js"textarea"))
-    
+
     ;; Add more stuff
-    (:= #js.this.textbox.innerHTML #js"test text")
+    (:= #js.this.container.style.display #js"none")
+
     (#js.this.container.appendChild #js.this.textbox)
-    
     (#js.root.appendChild #js.this.container)
-    ))
+    this)
+    [log
+     (λ (text) 
+       #:with-this this
+       (#js.this.logs.push (js-string text))
+       (#js.this.render)
+       (void))]
+    [show
+     (λ ()
+       #:with-this this
+       (:= #js.this.container.style.display DEFAULT-DISPLAY-MODE)
+       (void))]
+    [hide
+     (λ ()
+       #:with-this this
+       (:= #js.this.container.style.display #js"none")
+       (void))]
+    [render
+     (λ ()
+       #:with-this this
+       (define log-string (#js.this.logs.reduce (λ (res curr)
+                                                  (if ($/binop === res #js"")
+                                                      (js-string curr)
+                                                      ($/+ res #js"\n" (js-string curr))))
+                                                #js""))
+       (:= #js.this.textbox.innerHTML log-string)
+       (void))])
 
 (define (make-gui root)
   (new (ServerLogger root)))

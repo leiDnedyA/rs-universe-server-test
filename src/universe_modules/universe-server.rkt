@@ -18,6 +18,27 @@
 ; Variations from api:
 ; - no port handler
 
+#|
+  u: current universe state
+  Events to log:
+  - universe start:
+    "a new universe is up and running"
+  - state changes -> "~a" u
+  - mail sending:
+    "universe --> ~a:\n~a\n" iworld name, mail contents
+    "broadcast failed to ~a" iworld name
+    "~s not on the list" iworld name
+  - client connects:
+    "~a signed up" iworld name
+  - client sends msg:
+    "~a --> universe:\n~a\n" iworld name, msg content
+  - client disconnects:
+    "~a !! closed port"
+  - server stops:
+    "stopping the universe\n----------------------------------"
+  
+|#
+
 (provide universe
 
          u-on-tick
@@ -66,6 +87,13 @@
    (λ ()
      #:with-this this
      (#js.this.register-handlers)
+     (#js.this.gui.show)
+     this)]
+  [start
+   (λ ()
+     #:with-this this
+     (#js.this.init-peer-connection)
+     (#js.this.gui.log "a new universe is up and running")
      this)]
   [register-handlers
    (λ ()
@@ -87,13 +115,10 @@
             (define h ($ active-handlers key))
             (#js.h.deregister)
             (:= ($ #js.active-handlers #js.h.name) *undefined*)))))]
-  [start
+  [stop
    (λ ()
      #:with-this this
-     (#js.this.init-peer-connection)
-     0)]
-  [stop
-   (λ () 0)]
+     (#js.this.gui.hide))]
   [clear-event-queue
    (λ ()
      #:with-this this
