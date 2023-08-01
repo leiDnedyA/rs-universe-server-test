@@ -30,8 +30,13 @@
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
+(define (handle-tick ws)
+  (#js*.console.log ws)
+  (make-bundle ws '() '()))
+
 (define (start-universe)
   (universe '()
-    [u-on-new        handle-new]
-    [u-on-msg        handle-msg]
-    [u-on-disconnect handle-disconnect]))
+    [on-new        handle-new]
+    [on-msg        handle-msg]
+    [on-tick       handle-tick]
+    [on-disconnect handle-disconnect]))

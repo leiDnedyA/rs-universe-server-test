@@ -32,10 +32,9 @@
 
 (provide universe
 
-         u-on-tick
-         u-on-new
-         u-on-msg
-         u-on-disconnect)
+         on-new
+         on-msg
+         on-disconnect)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)
@@ -59,6 +58,8 @@
     (:= #js.this.state      init-state)
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
     (:= #js.this.handlers   handlers)
+    
+    (:= #js.this.is-universe? #true)
 
     (:= #js.this.gui (server-gui #js*.document.body
                                 ;  #js.this.stop
@@ -244,38 +245,7 @@
        (#js.this.gui.log (format "~a !! closed port" (iworld-name iw)))
        (void))])
 
-(define (u-id id-expr) ;; Allow users to specify the Peer ID of the universe
-  0)
-
-(define (u-on-tick cb rate)
-  (λ (u)
-    (define on-tick-evt ($/obj [type #js"on-tick"]))
-    ($/obj
-     [name         #js"on-tick"]
-     [register     (λ ()
-                     #:with-this this
-                     (#js.u.queue-event on-tick-evt)
-                     (if rate
-                         (set! rate (* 1000 rate))
-                         (set! rate #js.u.interval)))]
-     [deregister   (λ ()
-                     #:with-this this
-                     (define last-cb #js.this.last-cb)
-                     (when last-cb
-                       ;; TODO: This sometimes doesn't work,
-                       ;; particularly with high fps, so we need to do
-                       ;; something at event loop itself.
-                       (#js*.window.clearTimeout last-cb)))]
-     [invoke       (λ (state _)
-                     #:with-this this
-                     (#js.u.change-state (cb state))
-                     (:= #js.this.last-cb (#js*.setTimeout
-                                            (λ ()
-                                              (#js.u.queue-event on-tick-evt))
-                                            rate))
-                     #t)])))
-
-(define (u-on-new cb)
+(define (on-new cb)
   (λ (u)
     (define on-new-evt ($/obj [type #js"on-new"]))
     ($/obj
@@ -314,7 +284,7 @@
                                      (cb state #js.evt.iWorld))))
                      #t)])))
 
-(define (u-on-disconnect cb)
+(define (on-disconnect cb)
   (λ (u)
     (define on-disconnect-evt ($/obj [type #js"on-disconnect"]))
     ($/obj
@@ -334,7 +304,7 @@
                      (#js.u.change-state (cb state #js.evt.iWorld))
                      (void))])))
 
-(define (u-on-msg cb)
+(define (on-msg cb)
   (λ (u)
     (define on-msg-evt ($/obj [type #js"on-msg"]))
     ($/obj

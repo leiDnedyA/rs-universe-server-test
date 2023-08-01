@@ -12,17 +12,16 @@
          on-tick
          on-key
          on-release
-         on-receive ;; Experimental
-         register ;; Experimental
-         bb-name ;; Experimental
+         on-receive
+         register
+         name
          to-draw
          stop-when
          big-bang
 
-         u-on-tick
-         u-on-new
-         u-on-msg
-         u-on-disconnect
+         on-new
+         on-msg
+         on-disconnect
          universe
 
          package?
@@ -64,6 +63,8 @@
     (:= #js.this.world      init-world)
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
     (:= #js.this.handlers   handlers)
+
+    (:= #js.this.is-universe? #false)
 
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-world-change-listeners  ($/array))
@@ -308,16 +309,16 @@
                     #f)])))
 
 (define (on-tick cb rate)
-  (λ (bb)
+  (λ (bb-u)
     (define on-tick-evt ($/obj [type #js"on-tick"]))
     ($/obj
      [name         #js"on-tick"]
      [register     (λ ()
                      #:with-this this
-                     (#js.bb.queue-event on-tick-evt)
+                     (#js.bb-u.queue-event on-tick-evt)
                      (if rate
                          (set! rate (* 1000 rate))
-                         (set! rate #js.bb.interval)))]
+                         (set! rate #js.bb-u.interval)))]
      [deregister   (λ ()
                      #:with-this this
                      (define last-cb #js.this.last-cb)
@@ -326,12 +327,14 @@
                        ;; particularly with high fps, so we need to do
                        ;; something at event loop itself.
                        (#js*.window.clearTimeout last-cb)))]
-     [invoke       (λ (world _)
+     [invoke       (λ (state _)
                      #:with-this this
-                     (#js.bb.change-world (cb world))
+                     (if #js.bb-u.is-universe?
+                         (#js.bb-u.change-state (cb state))
+                         (#js.bb-u.change-world (cb state)))
                      (:= #js.this.last-cb (#js*.setTimeout
                                             (λ ()
-                                              (#js.bb.queue-event on-tick-evt))
+                                              (#js.bb-u.queue-event on-tick-evt))
                                             rate))
                      #t)])))
 
@@ -580,7 +583,7 @@
                      #t
                      )])))
 
-(define (bb-name name)
+(define (name name)
   (λ (bb)
     ($/obj
       [name        #js"name"]

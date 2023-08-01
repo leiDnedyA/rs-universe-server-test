@@ -190,5 +190,5 @@
     [to-draw draw]
     [on-key handle-key]
     [on-receive handle-receive]
-    [bb-name username]
+    [name username]
     [register "server"]))

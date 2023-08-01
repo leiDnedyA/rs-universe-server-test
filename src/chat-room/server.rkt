@@ -53,6 +53,6 @@
 
 (define (start-universe)
   (universe '()
-    [u-on-new        handle-new]
-    [u-on-msg        handle-msg]
-    [u-on-disconnect handle-disconnect]))
+    [on-new        handle-new]
+    [on-msg        handle-msg]
+    [on-disconnect handle-disconnect]))
