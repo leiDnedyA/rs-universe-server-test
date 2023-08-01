@@ -18,16 +18,20 @@
     #:with-this this
 
     ; <div id="server-logger-container">
+    ;     <checkbox>Auto-scroll</checkbox>
     ;     <textbox>logged text</textbox>
     ;     <div class="button-container">
-    ;         <button>stop</button>
+    ;          <button>stop</button>
     ;         <button>stop and restart</button>
     ;     </div>
     ; </div>
     (:= #js.this.logs  ($/array))
+    (:= #js.this.autoscroll? #true)
 
-    (:= #js.this.container  (#js*.document.createElement #js"div"))
-    (:= #js.this.textbox    (#js*.document.createElement #js"textarea"))
+    (:= #js.this.container      (#js*.document.createElement #js"div"))
+    (:= #js.this.textbox        (#js*.document.createElement #js"textarea"))
+    (:= #js.this.checkbox-label (#js*.document.createElement #js"label"))
+    (:= #js.this.checkbox       (#js*.document.createElement #js"input"))
 
     ;; Add more stuff
     (:= #js.this.container.style.display #js"none")
@@ -35,8 +39,15 @@
     (:= #js.this.container.style.height (js-string (format "~apx" HEIGHT)))
     (:= #js.this.textbox.style.width #js"inherit")
     (:= #js.this.textbox.style.height #js"inherit")
+    (:= #js.this.checkbox-label.for #js"autoscroll")
+    (:= #js.this.checkbox-label.innerHTML #js"autoscroll with new input")
+    (:= #js.this.checkbox.type #js"checkbox")
+    (:= #js.this.checkbox.onclick (lambda () (:= #js.this.autoscroll? #js.this.checkbox.checked)))
+    (:= #js.this.checkbox.checked #true)
 
     (#js.this.container.appendChild #js.this.textbox)
+    (#js.this.container.appendChild #js.this.checkbox-label)
+    (#js.this.container.appendChild #js.this.checkbox)
     (#js.root.appendChild #js.this.container)
     this)
     [log
@@ -65,7 +76,9 @@
                                                       ($/+ res #js"\n\n" (js-string curr))))
                                                 #js""))
        (:= #js.this.textbox.innerHTML log-string)
-       (:= #js.this.textbox.scrollTop #js.this.textbox.scrollHeight)
+       (cond [(equal? #js.this.autoscroll? #true)
+              (:= #js.this.textbox.scrollTop #js.this.textbox.scrollHeight)]
+             [else (void)])
        (void))])
 
 (define (make-gui root)

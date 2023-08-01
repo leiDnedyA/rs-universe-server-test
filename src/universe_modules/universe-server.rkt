@@ -22,10 +22,10 @@
 ;   root element for logging GUI
 
 #|
+  Add to logs:
   u: current universe state
   Events to log:
   - mail sending:
-    "universe --> ~a:\n~a\n" iworld name, mail contents
     "broadcast failed to ~a" iworld name
     "~s not on the list" iworld name
 |#

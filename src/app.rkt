@@ -11,6 +11,8 @@
 ; TODO:
 
 ; - Universe UI interface
+;   - Allow user to choose whether or not to autoscroll w/ new logs
+;   - Add stop and restart buttons
 ; - Work on implementing missing API features (consider doing chat-room example as test)
 ; - Look into design patterns for handling user disconnections (e.g user timeout)
 ;     - look into universe implementation
