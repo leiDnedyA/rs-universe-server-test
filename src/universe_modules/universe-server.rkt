@@ -60,7 +60,10 @@
     (:= #js.this.interval   (/ 1000 *default-frames-per-second*))
     (:= #js.this.handlers   handlers)
 
-    (:= #js.this.gui (server-gui)) ;; TODO: allow user to pass root element?
+    (:= #js.this.gui (server-gui #js*.document.body
+                                ;  #js.this.stop
+                                ;  (λ () ($> #js.this.stop #js.this.setup #js.this.start))
+                                 )) ;; TODO: allow user to pass root element? & Fix stop/restart cb's
 
     (:= #js.this.-active-handlers         ($/obj))
     (:= #js.this.-state-change-listeners  ($/array))
