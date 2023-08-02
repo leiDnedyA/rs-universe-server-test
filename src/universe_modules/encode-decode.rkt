@@ -27,6 +27,22 @@
                                  res)
                                ($/obj)))
 
+#|
+('test "some_string" #js"test" {test: "test"})
+
+
+"test"
+{
+  val: "test", type: "string"
+}
+
+'sym
+{
+  val: "sym", type: "symbol"
+}
+
+|#
+
 (define (encode-data data)
   (cond [(list? data) (foldl (lambda (curr result)
                                (#js.result.push (encode-data curr))

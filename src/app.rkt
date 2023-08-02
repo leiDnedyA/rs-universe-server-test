@@ -1,7 +1,9 @@
 #lang racketscript/base
 (require "universe.rkt"
-         "chat-room/client.rkt"
-         "chat-room/server.rkt"
+        ;  "chat-room/client.rkt"
+        ;  "chat-room/server.rkt"
+         "clicker/client.rkt"
+         "clicker/server.rkt"
         ; "bouncing-ball/client.rkt"
         ; "bouncing-ball/server.rkt"
         "universe_modules/encode-decode.rkt"
@@ -10,9 +12,8 @@
 
 ; TODO:
 
-; - write macros to convert handler names passed to universe function 
-;   to universe-specific ones
-;   e.g (universe (on-tick tick)) -> (universe* (u-on-tick tick))
+; - Figure out how to import PeerJS from CDN using mjs
+; - Add client rejection
 ; - Universe UI interface
 ;   - Allow user to choose whether or not to autoscroll w/ new logs
 ;   - Add stop and restart buttons

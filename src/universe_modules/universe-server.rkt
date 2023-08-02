@@ -99,7 +99,8 @@
    (λ ()
      #:with-this this
      (#js.this.init-peer-connection)
-     (#js.this.gui.log "a new universe is up and running")
+     (#js.this.gui.log (format "a new universe is up and running with id ~s" 
+                               (js-string->string #js.this.-peer.id)))
      this)]
   [register-handlers
    (λ ()
