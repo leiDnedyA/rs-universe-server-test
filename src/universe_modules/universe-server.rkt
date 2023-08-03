@@ -36,11 +36,13 @@
          on-msg
          on-disconnect
          
-         peerjs
+        ;  peerjs
          Peer)
 
-(define peerjs ($/require "peerjs" *))
-(define Peer #js.peerjs.Peer)
+;; Adds peerjs exports (primarily Peer constructor) to window object
+(define peerjs ($/require "https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js" *))
+
+(define Peer #js*.window.Peer)
 
 (define DEFAULT-UNIVERSE-ID "server") ;; Change this
 
