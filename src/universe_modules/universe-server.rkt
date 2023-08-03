@@ -34,7 +34,10 @@
 
          on-new
          on-msg
-         on-disconnect)
+         on-disconnect
+         
+         peerjs
+         Peer)
 
 (define peerjs ($/require "peerjs" *))
 (define Peer #js.peerjs.Peer)

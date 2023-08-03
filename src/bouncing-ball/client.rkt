@@ -45,12 +45,12 @@
   (if (equal? key " ")
       "stop" ws))
 
-(define (start-world name)
+(define (start-world client-name)
     (big-bang WORLD0 
               [on-tick move]
               [to-draw draw]
               [on-receive receive]
               [register "server"]
-              [bb-name name]
+              [name client-name]
               [on-key handle-key]
               [stop-when stop?]))

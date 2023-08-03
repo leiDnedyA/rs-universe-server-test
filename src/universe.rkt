@@ -44,9 +44,6 @@
 ; (name) clause for big-bang
 ; figure out a way to encode racket primitives to send between peers
 
-(define peerjs ($/require "peerjs" *))
-(define Peer #js.peerjs.Peer)
-
 (define *default-frames-per-second* 70)
 
 (define (make-big-bang init-world handlers)

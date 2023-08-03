@@ -2,10 +2,10 @@
 (require "universe.rkt"
         ;  "chat-room/client.rkt"
         ;  "chat-room/server.rkt"
-         "clicker/client.rkt"
-         "clicker/server.rkt"
-        ; "bouncing-ball/client.rkt"
-        ; "bouncing-ball/server.rkt"
+        ;  "clicker/client.rkt"
+        ;  "clicker/server.rkt"
+        "bouncing-ball/client.rkt"
+        "bouncing-ball/server.rkt"
         "universe_modules/encode-decode.rkt"
          "universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
@@ -13,6 +13,7 @@
 ; TODO:
 
 ; - Figure out how to import PeerJS from CDN using mjs
+; - Try and reproduce bug with bouncing ball example
 ; - Add client rejection
 ; - Universe UI interface
 ;   - Allow user to choose whether or not to autoscroll w/ new logs
@@ -49,6 +50,8 @@
     (start-world name)
     (remove-setup)
     (set-title ($/str name))))
+
+($/:= #js*.window.startWorld start-world)
 
 (#js.universe-button.addEventListener #js"click"
   (lambda ()

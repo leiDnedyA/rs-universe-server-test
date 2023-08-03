@@ -25,13 +25,11 @@
 
 (define (handle-disconnect ws iw)
   (define ws* (remove iw ws))
-  (#js*.console.log (length ws*))
   (define mails (make-curr-mail ws*))
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
 (define (handle-tick ws)
-  (#js*.console.log ws)
   (make-bundle ws '() '()))
 
 (define (start-universe)
