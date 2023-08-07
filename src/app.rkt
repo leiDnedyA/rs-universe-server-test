@@ -1,13 +1,11 @@
 #lang racketscript/base
-(require "universe.rkt"
-        ;  "chat-room/client.rkt"
-        ;  "chat-room/server.rkt"
+(require racketscript-universe
+         "chat-room/client.rkt"
+         "chat-room/server.rkt"
         ;  "clicker/client.rkt"
         ;  "clicker/server.rkt"
-        "bouncing-ball/client.rkt"
-        "bouncing-ball/server.rkt"
-        "universe_modules/encode-decode.rkt"
-         "universe_modules/debug-tools.rkt"
+        ; "bouncing-ball/client.rkt"
+        ; "bouncing-ball/server.rkt"
          racketscript/htdp/image)
 
 ; TODO:

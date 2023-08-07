@@ -1,9 +1,10 @@
 #lang racketscript/base
 
-(require "../universe.rkt"
+(require racketscript-universe
          "util.rkt"
-         "../universe_modules/encode-decode.rkt"
-         "../universe_modules/debug-tools.rkt"
+        ; "../universe.rkt"
+        ;  "../universe_modules/encode-decode.rkt"
+        ;  "../universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
 
 (provide start-world)

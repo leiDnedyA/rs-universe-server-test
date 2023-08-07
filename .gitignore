@@ -1,3 +1,8 @@
+# RacketScript build & Vite build
+dist
+js-build
+racketscript-universe
+
 # Logs
 logs
 *.log
@@ -8,9 +13,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
 dist-ssr
-js-build
 *.local
 
 # Editor directories and files
