@@ -52,8 +52,10 @@
   (define to-remove '())
   (make-bundle ws* mails to-remove))
 
-(define (start-universe)
-  (universe '()
+(define (start-universe root)
+  (universe #:dom-root root
+            '()
+            [server-id     "my-server"]
             [on-new        handle-new]
             [on-msg        handle-msg]
             [on-disconnect handle-disconnect]))

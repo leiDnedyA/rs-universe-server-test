@@ -10,15 +10,7 @@
 
 ; TODO:
 
-; - Figure out how to import PeerJS from CDN using mjs
 ; - Try and reproduce bug with bouncing ball example
-; - Add client rejection
-; - Universe UI interface
-;   - Allow user to choose whether or not to autoscroll w/ new logs
-;   - Add stop and restart buttons
-; - Look into design patterns for handling user disconnections (e.g user timeout)
-;     - look into universe implementation
-;     - figure out standard accepted way for distributed programs to handle the problem
 ; - document any deviations from the htdp/universe API (e.g register to peer id instead of ip)
 ; - consider reworking implementation of package datatype
 ;   to be like the bundle and mail implementations (w/ aliases)
@@ -28,6 +20,8 @@
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
 (define universe-button (#js*.document.querySelector #js"#universe-button"))
+
+(define root (#js*.document.querySelector #js"#root"))
 
 (define (remove-setup)
   (define setup-div (#js*.document.querySelector #js"#setup-div"))
@@ -45,7 +39,7 @@
 (#js.world-form.addEventListener #js"submit"
   (lambda (e)
     (define name #js.username-input.value)
-    (start-world name)
+    (start-world name root)
     (remove-setup)
     (set-title ($/str name))))
 
@@ -53,6 +47,6 @@
 
 (#js.universe-button.addEventListener #js"click"
   (lambda ()
-    (start-universe)
+    (start-universe root)
     (remove-setup)
     (set-title "Server")))

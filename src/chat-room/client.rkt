@@ -186,10 +186,11 @@
 ;; Start func
 ;;
 
-(define (start-world username)
-  (big-bang (list username '() '() "")
-    [to-draw draw]
-    [on-key handle-key]
-    [on-receive handle-receive]
-    [name username]
-    [register "server"]))
+(define (start-world username root)
+  (big-bang #:dom-root root
+            (list username '() '() "")
+            [to-draw draw]
+            [on-key handle-key]
+            [on-receive handle-receive]
+            [name username]
+            [register "my-server"]))
