@@ -38,6 +38,7 @@
 
 (#js.world-form.addEventListener #js"submit"
   (lambda (e)
+    (#js.e.preventDefault)
     (define name #js.username-input.value)
     (start-world name root)
     (remove-setup)
