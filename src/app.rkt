@@ -1,11 +1,11 @@
 #lang racketscript/base
-(require racketscript-universe
-         "chat-room/client.rkt"
-         "chat-room/server.rkt"
+(require racketscript/htdp/peer-universe
+        ;  "chat-room/client.rkt"
+        ;  "chat-room/server.rkt"
         ;  "clicker/client.rkt"
         ;  "clicker/server.rkt"
-        ; "bouncing-ball/client.rkt"
-        ; "bouncing-ball/server.rkt"
+        "bouncing-ball/client.rkt"
+        "bouncing-ball/server.rkt"
          racketscript/htdp/image)
 
 ; TODO:
@@ -19,6 +19,7 @@
 
 (define world-form (#js*.document.querySelector #js"#world-form"))
 (define username-input (#js*.document.querySelector #js"#username-input"))
+(define server-id-input (#js*.document.querySelector #js"#server-id-input"))
 (define universe-button (#js*.document.querySelector #js"#universe-button"))
 
 (define root (#js*.document.querySelector #js"#root"))
@@ -40,7 +41,8 @@
   (lambda (e)
     (#js.e.preventDefault)
     (define name #js.username-input.value)
-    (start-world name root)
+    (define server-id #js.server-id-input.value)
+    (start-world name server-id root)
     (remove-setup)
     (set-title ($/str name))))
 

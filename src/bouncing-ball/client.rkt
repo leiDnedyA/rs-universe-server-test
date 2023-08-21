@@ -1,5 +1,5 @@
 #lang racketscript/base
-(require "../universe.rkt"
+(require racketscript/htdp/peer-universe
          racketscript/htdp/image)
 
 (provide start-world)
@@ -45,12 +45,12 @@
   (if (equal? key " ")
       "stop" ws))
 
-(define (start-world client-name)
+(define (start-world client-name server-id root)
     (big-bang WORLD0 
               [on-tick move]
               [to-draw draw]
               [on-receive receive]
-              [register "server"]
+              [register server-id]
               [name client-name]
               [on-key handle-key]
               [stop-when stop?]))

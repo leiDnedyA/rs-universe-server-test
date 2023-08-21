@@ -1,6 +1,6 @@
 #lang racketscript/base
 
-(require "../universe.rkt"
+(require racketscript/htdp/peer-universe
          racketscript/htdp/image
          racket/list)
 
