@@ -32,8 +32,8 @@
 (define (handle-tick ws)
   (make-bundle ws '() '()))
 
-(define (start-universe)
-  (universe '()
+(define (start-universe root)
+  (universe '() #:dom-root root
     [on-new        handle-new]
     [on-msg        handle-msg]
     [on-tick       handle-tick]

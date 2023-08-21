@@ -46,7 +46,7 @@
       "stop" ws))
 
 (define (start-world client-name server-id root)
-    (big-bang WORLD0 
+    (big-bang WORLD0 #:dom-root root
               [on-tick move]
               [to-draw draw]
               [on-receive receive]

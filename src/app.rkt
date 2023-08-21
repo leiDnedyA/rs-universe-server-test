@@ -17,39 +17,6 @@
 ; - Investigate bug: requestanimationframe not working when window is hidden?
 ; - Figure out a way to configure Peer server to not allow custom IDs in client code
 
-(define world-form (#js*.document.querySelector #js"#world-form"))
-(define username-input (#js*.document.querySelector #js"#username-input"))
-(define server-id-input (#js*.document.querySelector #js"#server-id-input"))
-(define universe-button (#js*.document.querySelector #js"#universe-button"))
-
 (define root (#js*.document.querySelector #js"#root"))
 
-(define (remove-setup)
-  (define setup-div (#js*.document.querySelector #js"#setup-div"))
-  (#js.setup-div.remove))
-
-(define (set-title str)
-  (define page-title (#js*.document.querySelector #js"title"))
-  ($/:= #js.page-title.innerHTML (js-string str)))
-
-($/:= #js*.window.startClient
-  (lambda ()
-    (remove-setup)
-    (start-world ($/str "test"))))
-
-(#js.world-form.addEventListener #js"submit"
-  (lambda (e)
-    (#js.e.preventDefault)
-    (define name #js.username-input.value)
-    (define server-id #js.server-id-input.value)
-    (start-world name server-id root)
-    (remove-setup)
-    (set-title ($/str name))))
-
-($/:= #js*.window.startWorld start-world)
-
-(#js.universe-button.addEventListener #js"click"
-  (lambda ()
-    (start-universe root)
-    (remove-setup)
-    (set-title "Server")))
+(create-login-form start-world start-universe root)
