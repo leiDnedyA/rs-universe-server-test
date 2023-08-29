@@ -1,6 +1,6 @@
 #lang racketscript/base
 
-(require racketscript-universe
+(require racketscript/htdp/peer-universe
          racketscript/htdp/image)
 
 (provide start-universe)
@@ -53,7 +53,6 @@
 (define (start-universe root)
   (universe #:dom-root root
             '()
-            [server-id     "my-server"]
             [on-new        handle-new]
             [on-msg        handle-msg]
             [on-disconnect handle-disconnect]))

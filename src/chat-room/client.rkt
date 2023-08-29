@@ -1,10 +1,7 @@
 #lang racketscript/base
 
-(require racketscript-universe
+(require racketscript/htdp/peer-universe
          "util.rkt"
-        ; "../universe.rkt"
-        ;  "../universe_modules/encode-decode.rkt"
-        ;  "../universe_modules/debug-tools.rkt"
          racketscript/htdp/image)
 
 (provide start-world)
@@ -186,11 +183,11 @@
 ;; Start func
 ;;
 
-(define (start-world username root)
+(define (start-world username server-id root)
   (big-bang #:dom-root root
             (list username '() '() "")
             [to-draw draw]
             [on-key handle-key]
             [on-receive handle-receive]
             [name username]
-            [register "my-server"]))
+            [register server-id]))

@@ -1,11 +1,11 @@
 #lang racketscript/base
 (require racketscript/htdp/peer-universe
-        ;  "chat-room/client.rkt"
-        ;  "chat-room/server.rkt"
+         "chat-room/client.rkt"
+         "chat-room/server.rkt"
         ;  "clicker/client.rkt"
         ;  "clicker/server.rkt"
-        "bouncing-ball/client.rkt"
-        "bouncing-ball/server.rkt"
+        ; "bouncing-ball/client.rkt"
+        ; "bouncing-ball/server.rkt"
          racketscript/htdp/image)
 
 ; TODO:

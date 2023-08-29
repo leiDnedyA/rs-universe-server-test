@@ -14,6 +14,11 @@ while [[ $# -gt 0 ]]; do
       racks --skip-arity-checks -r src/app.rkt
       exit 0
       ;;
+    --clean)
+      rm -r --force js-build
+      $default_command
+      exit 0
+      ;;
     *)
       echo "Usage: $0 [-r | --recompile] <directory_name>"
       exit 1

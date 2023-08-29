@@ -54,3 +54,5 @@
               [name client-name]
               [on-key handle-key]
               [stop-when stop?]))
+
+($/:= #js*.window.startWorld start-world)
